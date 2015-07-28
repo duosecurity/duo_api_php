@@ -13,7 +13,7 @@ class Client {
         assert('is_string($ikey)');
         assert('is_string($skey)');
         assert('is_string($host)');
-        assert('is_null($requester) || is_subclass_of($requester, "Requester")');
+        assert('is_null($requester) || is_subclass_of($requester, "DuoAPI\\Requester")');
 
         $this->ikey = $ikey;
         $this->skey = $skey;
