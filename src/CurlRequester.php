@@ -42,6 +42,8 @@ class CurlRequester implements Requester {
         // Mandatory configuration options
         $curl_options[CURLOPT_RETURNTRANSFER] = 1;
         $curl_options[CURLOPT_FOLLOWLOCATION] = 1;
+        $curl_options[CURLOPT_SSL_VERIFYPEER] = TRUE;
+        $curl_options[CURLOPT_SSL_VERIFYHOST] = 2;
 
         curl_setopt_array($this->ch, $curl_options);
     }
