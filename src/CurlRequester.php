@@ -35,9 +35,9 @@ class CurlRequester implements Requester {
             return array_key_exists($option, $options);
         });
 
-        $curl_options = array_map(function($option_key) use ($options) {
-            return $options[$option_key];
-        }, array_values($curl_options));
+        foreach ($curl_options as $key => $value) {
+            $curl_options[$key] = $options[$value];
+        }
 
         // Mandatory configuration options
         $curl_options[CURLOPT_RETURNTRANSFER] = 1;
