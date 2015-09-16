@@ -10,9 +10,18 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="false">
+    <php>
+        <const name="GOOD_STUNNEL_SERVER" value="localhost:4443"/>
+        <const name="SELF_SIGNED_STUNNEL_SERVER" value="localhost:4444"/>
+        <const name="BAD_HOSTNAME_STUNNEL_SERVER" value="localhost:4445"/>
+        <const name="PHP_SERVER" value="localhost:4000"/>
+    </php>
     <testsuites>
-        <testsuite name="Duo Test Suite">
-            <directory suffix=".php">./tests/</directory>
+        <testsuite name="unit">
+            <directory suffix=".php">./tests/Unit/</directory>
+        </testsuite>
+        <testsuite name="ssl">
+            <directory suffix=".php">./tests/SSL/</directory>
         </testsuite>
     </testsuites>
 </phpunit>
