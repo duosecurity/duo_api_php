@@ -9,8 +9,24 @@ class FileRequester implements Requester {
         $this->http_options = array(
             "http" => array(),
             "ssl" => array(
+                /*
+                 * Disallow self-signed certificates
+                 */
                 "allow_self_signed" => FALSE,
+                /*
+                 * Enforce CN verification
+                 */
                 "verify_peer" => TRUE,
+                /*
+                 * Avoid compression (CRIME attack)
+                 */
+                "disable_compression" => TRUE,
+                /*
+                 * Require good ciphers. View the list with:
+                 *
+                 *     openssl ciphers -v 'HIGH:!SSLv2:!SSLv3'
+                 */
+                "ciphers" => "HIGH:!SSLv2:!SSLv3",
             ),
         );
     }
@@ -56,7 +72,7 @@ class FileRequester implements Requester {
 
         $context = stream_context_create($this->http_options);
 
-        $result = file_get_contents($url, FALSE, $context);
+        $result = @file_get_contents($url, FALSE, $context);
 
         $success = TRUE;
         if ($result === FALSE) {
@@ -75,7 +91,13 @@ class FileRequester implements Requester {
              *  2. We couldn't reach Duo (this is the case we'd expect to
              *     return FALSE).
              */
-            $result = sprintf('{"stat": "FAIL", "code": %d, "message": "%s"}', $errno, $message);
+            $result = json_encode(
+                array(
+                    'stat' => 'FAIL',
+                    'code' => $errno,
+                    'message' => $message,
+                )
+            );
             $success = FALSE;
         }
 
