@@ -145,6 +145,18 @@ class Admin extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
+    public function integrations($ikey = NULL) {
+        $method = "GET";
+        $endpoint = "/admin/v1/integrations";
+        $params = array();
+
+        if ($ikey) {
+            $endpoint .= ("/" . $ikey);
+        }
+
+        return self::jsonApiCall($method, $endpoint, $params);
+    }
+
     public function summary() {
 
         $method = "GET";
