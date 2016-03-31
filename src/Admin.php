@@ -13,9 +13,9 @@ class Admin extends Client {
      * Values a user/group's status can be set to. Note that this is what
      * they can be SET to, there are additional values that can be retrieved.
      */
-    private $SET_STATUS = array("active", "bypass", "disabled");
+    private static $SET_STATUS = array("active", "bypass", "disabled");
     private function is_status($status) {
-        return is_string($status) && in_array($status, self::SET_STATUS);
+        return is_string($status) && in_array($status, self::$SET_STATUS);
     }
 
     /*
@@ -128,6 +128,32 @@ class Admin extends Client {
         $endpoint = "/admin/v1/users/" . $userid . "/phones";
         $params = array(
             "phone_id" => $phoneid,
+        );
+
+        return self::jsonApiCall($method, $endpoint, $params);
+    }
+
+    public function user_associate_token($userid, $tokenid) {
+        assert('is_string($userid)');
+        assert('is_string($tokenid)');
+
+        $method = "POST";
+        $endpoint = "/admin/v1/users/" . $userid . "/tokens";
+        $params = array(
+            "token_id" => $tokenid,
+        );
+
+        return self::jsonApiCall($method, $endpoint, $params);
+    }
+
+    public function user_associate_group($userid, $groupid) {
+        assert('is_string($userid)');
+        assert('is_string($groupid)');
+
+        $method = "POST";
+        $endpoint = "/admin/v1/users/" . $userid . "/groups";
+        $params = array(
+            "group_id" => $groupid,
         );
 
         return self::jsonApiCall($method, $endpoint, $params);
