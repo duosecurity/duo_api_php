@@ -10,12 +10,21 @@
 
 # Installing
 
+Development:
+
 ```
 $ git clone https://github.com/duosecurity/duo_api_php.git
+$ cd duo_api_php
 $ composer install
 ```
 
-To add this to your project simply include the following in your `composer.json`:
+System:
+
+```
+$ composer global require duosecurity/duo_api_php:dev-master
+```
+
+Or add the following to your project:
 
 ```
 {
