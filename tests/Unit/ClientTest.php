@@ -2,6 +2,17 @@
 
 class ClientTest extends PHPUnit_Framework_TestCase {
 
+    public function setUp() {
+        $this->mocked_curl_requester = $this->getMockBuilder('DuoAPI\CurlRequester')
+                                            ->setMethods(array('execute', 'options'))
+                                            ->disableOriginalConstructor()
+                                            ->getMock();
+
+        $nop = function(...$params) { return; };
+        $this->mocked_curl_requester->method('options')
+                                    ->will($this->returnCallback($nop));
+    }
+
     /*
      * Yes, we're testing these private methods by forcing them to be
      * accessible, and yes this is testing implementation details. There
@@ -147,6 +158,125 @@ class ClientTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals("f01811cbbf9561623ab45b893096267fd46a5178", $result);
     }
 
+    public function testJsonPagingApiCallSuccess() {
+        $response = [
+            [
+                "success" => TRUE,
+                "response" => json_encode([
+                    "stat" => "OK",
+                    "metadata" => [
+                        "next_offset" => 1,
+                        "total_objects" => 2,
+                    ],
+                    "response" => ["resp1"],
+                ]),
+            ],
+            [
+                "success" => TRUE,
+                "response" => json_encode([
+                    "stat" => "OK",
+                    "metadata" => [
+                        "prev_offset" => 0,
+                        "total_objects" => 2,
+                    ],
+                    "response" => ["resp2"],
+                ]),
+            ],
+        ];
+        $expected = ["resp1", "resp2"];
+
+        $this->mocked_curl_requester->method('execute')
+                                    ->will($this->onConsecutiveCalls(...$response));
+
+        $client = new DuoAPI\Client(
+            "UNUSED",
+            "UNUSED",
+            "UNUSED",
+            $requester = $this->mocked_curl_requester,
+            $paging = TRUE
+        );
+        $response = $client->jsonPagingApiCall("UNUSED", "UNUSED", []);
+
+        $this->assertEquals($expected, $response["response"]["response"]);
+    }
+
+    public function testJsonPagingApiCallPartialNetworkFail() {
+        $network_failure = [
+            "success" => FALSE,
+            "response" => json_encode([
+            ]),
+        ];
+        $response = [
+            $network_failure,
+            [
+                "success" => TRUE,
+                "response" => json_encode([
+                    "stat" => "OK",
+                    "metadata" => [
+                        "prev_offset" => 0,
+                        "total_objects" => 2,
+                    ],
+                    "response" => ["resp2"],
+                ]),
+            ],
+        ];
+        $expected = $network_failure;
+        $expected["response"] = json_decode($expected["response"], TRUE);
+
+        $this->mocked_curl_requester->method('execute')
+                                    ->will($this->onConsecutiveCalls(...$response));
+
+        $client = new DuoAPI\Client(
+            "UNUSED",
+            "UNUSED",
+            "UNUSED",
+            $requester = $this->mocked_curl_requester,
+            $paging = TRUE
+        );
+        $response = $client->jsonPagingApiCall("UNUSED", "UNUSED", []);
+
+        $this->assertEquals($expected, $response);
+    }
+
+    public function testJsonPagingApiCallPartialApiFail() {
+        $api_failure = [
+            "success" => TRUE,
+            "response" => json_encode([
+                "stat" => "FAIL",
+                "response" => [],
+            ]),
+        ];
+        $response = [
+            $api_failure,
+            [
+                "success" => TRUE,
+                "response" => json_encode([
+                    "stat" => "OK",
+                    "metadata" => [
+                        "prev_offset" => 0,
+                        "total_objects" => 2,
+                    ],
+                    "response" => ["resp2"],
+                ]),
+            ],
+        ];
+        $expected = $api_failure;
+        $expected["response"] = json_decode($expected["response"], TRUE);
+
+        $this->mocked_curl_requester->method('execute')
+                                    ->will($this->onConsecutiveCalls(...$response));
+
+        $client = new DuoAPI\Client(
+            "UNUSED",
+            "UNUSED",
+            "UNUSED",
+            $requester = $this->mocked_curl_requester,
+            $paging = TRUE
+        );
+        $response = $client->jsonPagingApiCall("UNUSED", "UNUSED", []);
+
+        $this->assertEquals($expected, $response);
+    }
 }
 
 ?>

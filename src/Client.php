@@ -9,7 +9,9 @@ require_once("FileRequester.php");
 
 class Client {
 
-    function __construct($ikey, $skey, $host, $requester = NULL) {
+    const DEFAULT_PAGING_LIMIT = '100';
+
+    public function __construct($ikey, $skey, $host, $requester = NULL, $paging = TRUE) {
         assert('is_string($ikey)');
         assert('is_string($skey)');
         assert('is_string($host)');
@@ -26,6 +28,8 @@ class Client {
         } else {
             $this->requester = new FileRequester();
         }
+
+        $this->paging = $paging;
 
         // Default requester options
         $this->options = array(
@@ -152,4 +156,55 @@ class Client {
         return $result;
     }
 
+    public function jsonPagingApiCall($method, $path, $params) {
+        assert('is_string($method)');
+        assert('is_string($path)');
+        assert('is_array($params)');
+
+        $offset = 0;
+
+        if (!isset($params["limit"])) {
+            $params["limit"] = self::DEFAULT_PAGING_LIMIT;
+        }
+
+        $result = [];
+        while ($offset !== FALSE) {
+            $params["offset"] = strval($offset);
+            $paged_result = self::jsonApiCall($method, $path, $params);
+
+            /*
+             * If we receive any sort of error during paging calls we're going
+             * to bail. This is so we don't return partial results.
+             */
+            $network_error = !isset($paged_result["success"]) || $paged_result["success"] !== TRUE;
+            $api_error = !isset($paged_result["response"]["stat"]) || $paged_result["response"]["stat"] !== "OK";
+            if ($network_error || $api_error) {
+                return $paged_result;
+            }
+
+            $offset = isset($paged_result["response"]["metadata"]["next_offset"]) ?
+                $paged_result["response"]["metadata"]["next_offset"] : FALSE;
+
+            if (isset($paged_result["response"]["metadata"])) {
+                unset($paged_result["response"]["metadata"]);
+            }
+
+            /*
+             * All the auxiliary data should be the same for successful paged
+             * calls. So let's just take the first one and merge all the
+             * subsequent response data into a single list to make it look
+             * like it was a single call.
+             */
+            if (empty($result)) {
+                $result = $paged_result;
+            } else {
+                $result["response"]["response"] = array_merge(
+                    $result["response"]["response"],
+                    $paged_result["response"]["response"]
+                );
+            }
+        }
+
+        return $result;
+    }
 }
