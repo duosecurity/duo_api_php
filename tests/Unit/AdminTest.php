@@ -1,9 +1,12 @@
 <?php
+namespace Unit;
 
-class AdminTest extends PHPUnit_Framework_TestCase {
+class AdminTest extends \PHPUnit_Framework_TestCase
+{
 
     // https://www.duosecurity.com/docs/adminapi#/integrations
-    protected function getSuccessfulIntegrationsResponse() {
+    protected function getSuccessfulIntegrationsResponse()
+    {
         $successful_integrations_response = array(
             "response" => json_encode(array(
                 "stat" => "OK",
@@ -26,14 +29,15 @@ class AdminTest extends PHPUnit_Framework_TestCase {
                     "username_normalization_policy" => "None",
                 ),
             )),
-            "success" => TRUE,
+            "success" => true,
         );
 
         return $successful_integrations_response;
     }
 
     // https://www.duosecurity.com/docs/adminapi#base-url
-    protected function getUnsuccessfulResponse() {
+    protected function getUnsuccessfulResponse()
+    {
         $unsuccessful_preauth_response = array(
             "response" => json_encode(array(
                 "stat" => "FAIL",
@@ -41,28 +45,32 @@ class AdminTest extends PHPUnit_Framework_TestCase {
                 "message" => "Invalid request parameters",
                 "message_detail" => "username"
             )),
-            "success" => TRUE,
+            "success" => true,
         );
 
         return $unsuccessful_preauth_response;
     }
 
-      public function testIntegrations_whenSuccessful() {
+    public function testIntegrationsWhenSuccessful()
+    {
         $successful_response = self::getSuccessfulIntegrationsResponse();
 
-        $curl_mock = $this->getMockBuilder('DuoAPI\CurlRequester')
-                          ->setMethods(array('execute', 'options'))
-                          ->disableOriginalConstructor()
-                          ->getMock();
+        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
+                      ->setMethods(array('execute', 'options'))
+                      ->disableOriginalConstructor()
+                      ->getMock();
 
         $curl_mock->method('execute')
-                  ->willReturn($successful_response);
+              ->willReturn($successful_response);
 
-        $nop = function(...$params) { return; };
+        $nop = function (...$params) {
+            return;
+
+        };
         $curl_mock->method('options')
-                  ->will($this->returnCallback($nop));
+              ->will($this->returnCallback($nop));
 
-        $duo = new DuoAPI\Admin(
+        $duo = new \DuoAPI\Admin(
             "IKEYIKEYIKEYIKEYIKEY",
             "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
             "api-duo.example.com",
@@ -70,15 +78,16 @@ class AdminTest extends PHPUnit_Framework_TestCase {
         );
         $result = $duo->integrations("IKEYIKEYIKEYIKEYIKEY");
 
-        $expected_response = json_decode($successful_response["response"], TRUE)["response"];
+        $expected_response = json_decode($successful_response["response"], true)["response"];
         $this->assertEquals("OK", $result["response"]["stat"]);
         $this->assertEquals($expected_response, $result["response"]["response"]);
     }
 
-    public function testIntegrations_whenUnsuccessfulResponse() {
+    public function testIntegrationsWhenUnsuccessfulResponse()
+    {
         $unsuccessful_response = self::getUnsuccessfulResponse();
 
-        $curl_mock = $this->getMockBuilder('DuoAPI\CurlRequester')
+        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
                           ->setMethods(array('execute', 'options'))
                           ->disableOriginalConstructor()
                           ->getMock();
@@ -86,12 +95,15 @@ class AdminTest extends PHPUnit_Framework_TestCase {
         $curl_mock->method('execute')
                   ->willReturn($unsuccessful_response);
 
-        $nop = function(...$params) { return; };
+        $nop = function (...$params) {
+            return;
+
+        };
         $curl_mock->expects($this->once())
                   ->method('options')
                   ->will($this->returnCallback($nop));
 
-        $duo = new DuoAPI\Admin(
+        $duo = new \DuoAPI\Admin(
             "IKEYIKEYIKEYIKEYIKEY",
             "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
             "api-duo.example.com",
@@ -99,11 +111,8 @@ class AdminTest extends PHPUnit_Framework_TestCase {
         );
         $result = $duo->integrations();
 
-        $expected_response = json_decode($unsuccessful_response["response"], TRUE);
+        $expected_response = json_decode($unsuccessful_response["response"], true);
         $this->assertTrue($result["success"]);
         $this->assertEquals($expected_response, $result["response"]);
     }
-
 }
-
-?>

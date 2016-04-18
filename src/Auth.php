@@ -5,11 +5,11 @@ namespace DuoAPI;
  * https://www.duosecurity.com/docs/authapi
  */
 
-require_once("Client.php");
+class Auth extends Client
+{
 
-class Auth extends Client {
-
-    public function ping() {
+    public function ping()
+    {
         $method = "GET";
         $endpoint = "/auth/v2/ping";
         $params = array();
@@ -17,7 +17,8 @@ class Auth extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function check() {
+    public function check()
+    {
         $method = "GET";
         $endpoint = "/auth/v2/check";
         $params = array();
@@ -25,7 +26,8 @@ class Auth extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function logo() {
+    public function logo()
+    {
         $method = "GET";
         $endpoint = "/auth/v2/logo";
         $params = array();
@@ -33,7 +35,8 @@ class Auth extends Client {
         return self::apiCall($method, $endpoint, $params);
     }
 
-    public function enroll($username = NULL, $valid_secs = NULL) {
+    public function enroll($username = null, $valid_secs = null)
+    {
         assert('is_string($username) || is_null($username)');
         assert('is_int($valid_secs) || is_null($valid_secs)');
 
@@ -51,7 +54,8 @@ class Auth extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function enroll_status($user_id, $activation_code) {
+    public function enroll_status($user_id, $activation_code)
+    {
         assert('is_string($user_id)');
         assert('is_string($activation_code)');
 
@@ -66,10 +70,11 @@ class Auth extends Client {
     }
 
     public function preauth(
-            $user_identifier,
-            $ipaddr = NULL,
-            $trusted_device_token = NULL,
-            $username = TRUE) {
+        $user_identifier,
+        $ipaddr = null,
+        $trusted_device_token = null,
+        $username = true
+    ) {
         assert('is_string($user_identifier)');
         assert('is_string($ipaddr) || is_null($ipaddr)');
         assert('is_string($trusted_device_token) || is_null($trusted_device_token)');
@@ -95,12 +100,13 @@ class Auth extends Client {
     }
 
     public function auth(
-            $user_identifier,
-            $factor,
-            $factor_params,
-            $ipaddr = NULL,
-            $async = FALSE,
-            $username = TRUE) {
+        $user_identifier,
+        $factor,
+        $factor_params,
+        $ipaddr = null,
+        $async = false,
+        $username = true
+    ) {
         assert('is_string($user_identifier)');
         assert('is_string($factor) && in_array($factor,
             array("auto", "push", "passcode", "sms", "phone"))');
@@ -139,13 +145,13 @@ class Auth extends Client {
             if (array_key_exists("pushinfo", $factor_params)) {
                 $params["pushinfo"] = $factor_params["pushinfo"];
             }
-        } else if ($factor === "passcode") {
+        } elseif ($factor === "passcode") {
             assert('array_key_exists("passcode", $factor_params) && is_string($factor_params["passcode"])');
             $params["passcode"] = $factor_params["passcode"];
-        } else if ($factor === "phone") {
+        } elseif ($factor === "phone") {
             assert('array_key_exists("device", $factor_params) && is_string($factor_params["device"])');
             $params["device"] = $factor_params["device"];
-        } else if ($factor === "sms") {
+        } elseif ($factor === "sms") {
             assert('array_key_exists("device", $factor_params) && is_string($factor_params["device"])');
             $params["device"] = $factor_params["device"];
         }
@@ -153,7 +159,8 @@ class Auth extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function auth_status($txid) {
+    public function auth_status($txid)
+    {
         assert('is_string($txid)');
 
         $method = "POST";
@@ -164,7 +171,4 @@ class Auth extends Client {
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
-
 }
-
-?>

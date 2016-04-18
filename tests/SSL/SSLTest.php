@@ -1,18 +1,22 @@
 <?php
+namespace SSL;
 
 /*
  * This (https://jamielinux.com/docs/openssl-certificate-authority/) page
  * was extremely helpful for setting up the certificate testing environment.
  */
 
-class SSLTest extends PHPUnit_Framework_TestCase {
+class SSLTest extends \PHPUnit_Framework_TestCase
+{
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->good_chain = dirname(__FILE__) . "/" . "ca-chain-self.cert.pem";
         $this->bad_chain = dirname(__FILE__) . "/" . "ca-chain-mozilla.cert.pem";
     }
 
-    public static function setUpBeforeClass() {
+    public static function setUpBeforeClass()
+    {
         $silence = '>/dev/null 2>&1 & echo $!';
 
         $commands = array(
@@ -34,15 +38,16 @@ class SSLTest extends PHPUnit_Framework_TestCase {
         // Allow processes to start
         sleep(1);
 
-        register_shutdown_function(function() use ($pids) {
+        register_shutdown_function(function () use ($pids) {
             foreach ($pids as $pid) {
                 exec('kill ' . $pid);
             }
         });
     }
 
-    public function pingSSLServer($requester, $host, $certificate) {
-        $duo = new DuoAPI\Auth(
+    public function pingSSLServer($requester, $host, $certificate)
+    {
+        $duo = new \DuoAPI\Auth(
             "IKEYIKEYIKEYIKEYIKEY",
             "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
             $host,
@@ -64,8 +69,9 @@ class SSLTest extends PHPUnit_Framework_TestCase {
      *
      * This test exercises peer verification.
      */
-    public function testCorrectlySignedCertificateCurl() {
-        $requester = new DuoAPI\CurlRequester();
+    public function testCorrectlySignedCertificateCurl()
+    {
+        $requester = new \DuoAPI\CurlRequester();
         $result = $this->pingSSLServer(
             $requester,
             GOOD_STUNNEL_SERVER,
@@ -75,8 +81,9 @@ class SSLTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($result["success"]);
     }
 
-    public function testCorrectlySignedCertificateFile() {
-        $requester = new DuoAPI\FileRequester();
+    public function testCorrectlySignedCertificateFile()
+    {
+        $requester = new \DuoAPI\FileRequester();
         $result = $this->pingSSLServer(
             $requester,
             GOOD_STUNNEL_SERVER,
@@ -102,8 +109,9 @@ class SSLTest extends PHPUnit_Framework_TestCase {
      *
      * This test exercises peer verification.
      */
-    public function testMismatchedCertificateCurl() {
-        $requester = new DuoAPI\CurlRequester();
+    public function testMismatchedCertificateCurl()
+    {
+        $requester = new \DuoAPI\CurlRequester();
         $result = $this->pingSSLServer(
             $requester,
             GOOD_STUNNEL_SERVER,
@@ -112,12 +120,15 @@ class SSLTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertEquals($result["response"]["message"],
-            "SSL certificate problem: unable to get local issuer certificate");
+        $this->assertEquals(
+            $result["response"]["message"],
+            "SSL certificate problem: unable to get local issuer certificate"
+        );
     }
 
-    public function testMismatchedCertificateFile() {
-        $requester = new DuoAPI\FileRequester();
+    public function testMismatchedCertificateFile()
+    {
+        $requester = new \DuoAPI\FileRequester();
         $result = $this->pingSSLServer(
             $requester,
             GOOD_STUNNEL_SERVER,
@@ -126,8 +137,10 @@ class SSLTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertContains("failed to open stream: operation failed",
-            $result["response"]["message"]);
+        $this->assertContains(
+            "failed to open stream: operation failed",
+            $result["response"]["message"]
+        );
     }
 
     /*
@@ -138,8 +151,9 @@ class SSLTest extends PHPUnit_Framework_TestCase {
      *
      * This test exercises peer verification.
      */
-    public function testSelfSignedCertificateCurl() {
-        $requester = new DuoAPI\CurlRequester();
+    public function testSelfSignedCertificateCurl()
+    {
+        $requester = new \DuoAPI\CurlRequester();
         $result = $this->pingSSLServer(
             $requester,
             SELF_SIGNED_STUNNEL_SERVER,
@@ -148,12 +162,15 @@ class SSLTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertEquals($result["response"]["message"],
-            "SSL certificate problem: self signed certificate");
+        $this->assertEquals(
+            $result["response"]["message"],
+            "SSL certificate problem: self signed certificate"
+        );
     }
 
-    public function testSelfSignedCertificateFile() {
-        $requester = new DuoAPI\FileRequester();
+    public function testSelfSignedCertificateFile()
+    {
+        $requester = new \DuoAPI\FileRequester();
         $result = $this->pingSSLServer(
             $requester,
             SELF_SIGNED_STUNNEL_SERVER,
@@ -162,8 +179,10 @@ class SSLTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertContains("failed to open stream: operation failed",
-            $result["response"]["message"]);
+        $this->assertContains(
+            "failed to open stream: operation failed",
+            $result["response"]["message"]
+        );
     }
 
     /*
@@ -175,8 +194,9 @@ class SSLTest extends PHPUnit_Framework_TestCase {
      *
      * This test exercises hostname verification.
      */
-    public function testCertificateBadHostnameCurl() {
-        $requester = new DuoAPI\CurlRequester();
+    public function testCertificateBadHostnameCurl()
+    {
+        $requester = new \DuoAPI\CurlRequester();
         $result = $this->pingSSLServer(
             $requester,
             BAD_HOSTNAME_STUNNEL_SERVER,
@@ -189,12 +209,15 @@ class SSLTest extends PHPUnit_Framework_TestCase {
         /*
          * The certificate was generated with hostname 'test'.
          */
-        $this->assertEquals($result["response"]["message"],
-            "SSL: certificate subject name 'test' does not match target host name 'localhost'");
+        $this->assertEquals(
+            $result["response"]["message"],
+            "SSL: certificate subject name 'test' does not match target host name 'localhost'"
+        );
     }
 
-    public function testCertificateBadHostnameFile() {
-        $requester = new DuoAPI\FileRequester();
+    public function testCertificateBadHostnameFile()
+    {
+        $requester = new \DuoAPI\FileRequester();
         $result = $this->pingSSLServer(
             $requester,
             BAD_HOSTNAME_STUNNEL_SERVER,
@@ -203,9 +226,9 @@ class SSLTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertContains("failed to open stream: operation failed",
-            $result["response"]["message"]);
+        $this->assertContains(
+            "failed to open stream: operation failed",
+            $result["response"]["message"]
+        );
     }
 }
-
-?>

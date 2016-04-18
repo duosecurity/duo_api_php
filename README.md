@@ -65,12 +65,18 @@ array(2) {
 # Testing
 
 ```
-$ phpunit -c phpunit.xml
-PHPUnit 4.7.2 by Sebastian Bergmann and contributors.
+$ ./vendor/bin/phpunit -c phpunit.xml
+PHPUnit 5.3.2 by Sebastian Bergmann and contributors.
 
-.........
+..............................                                    30 / 30 (100%)
 
-Time: 47 ms, Memory: 4.50Mb
+Time: 1.18 seconds, Memory: 6.00Mb
 
-OK (9 tests, 9 assertions)
+OK (30 tests, 48 assertions)
+```
+
+# Linting
+
+```
+$ ./vendor/bin/phpcs --standard=PSR2 -n src/* tests/*
 ```

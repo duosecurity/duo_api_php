@@ -1,9 +1,12 @@
 <?php
+namespace Unit;
 
-class AuthTest extends PHPUnit_Framework_TestCase {
+class AuthTest extends \PHPUnit_Framework_TestCase
+{
 
     // https://www.duosecurity.com/docs/authapi#/preauth
-    protected function getSuccessfulPreauthResponse() {
+    protected function getSuccessfulPreauthResponse()
+    {
         $successful_preauth_response = array(
             "response" => json_encode(array(
                 "stat" => "OK",
@@ -30,14 +33,15 @@ class AuthTest extends PHPUnit_Framework_TestCase {
                     ),
                 )
             )),
-            "success" => TRUE,
+            "success" => true,
         );
 
         return $successful_preauth_response;
     }
 
     // https://www.duosecurity.com/docs/authapi#base-url
-    protected function getUnsuccessfulResponse() {
+    protected function getUnsuccessfulResponse()
+    {
         $unsuccessful_preauth_response = array(
             "response" => json_encode(array(
                 "stat" => "FAIL",
@@ -45,16 +49,17 @@ class AuthTest extends PHPUnit_Framework_TestCase {
                 "message" => "Invalid request parameters",
                 "message_detail" => "username"
             )),
-            "success" => TRUE,
+            "success" => true,
         );
 
         return $unsuccessful_preauth_response;
     }
 
-    public function testPreauthCall() {
+    public function testPreauthCall()
+    {
         $successful_preauth_response = self::getSuccessfulPreauthResponse();
 
-        $curl_mock = $this->getMockBuilder('DuoAPI\CurlRequester')
+        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
                           ->setMethods(array('execute', 'options'))
                           ->disableOriginalConstructor()
                           ->getMock();
@@ -62,11 +67,14 @@ class AuthTest extends PHPUnit_Framework_TestCase {
         $curl_mock->method('execute')
                   ->willReturn($successful_preauth_response);
 
-        $nop = function(...$params) { return; };
+        $nop = function (...$params) {
+            return;
+
+        };
         $curl_mock->method('options')
                   ->will($this->returnCallback($nop));
 
-        $duo = new DuoAPI\Auth(
+        $duo = new \DuoAPI\Auth(
             "IKEYIKEYIKEYIKEYIKEY",
             "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
             "api-duo.example.com",
@@ -78,10 +86,11 @@ class AuthTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($result["response"]["response"]["result"], "auth");
     }
 
-    public function testPreauthHttpArguments() {
+    public function testPreauthHttpArguments()
+    {
         $successful_preauth_response = self::getSuccessfulPreauthResponse();
 
-        $curl_mock = $this->getMockBuilder('DuoAPI\CurlRequester')
+        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
                           ->setMethods(array('execute', 'options'))
                           ->disableOriginalConstructor()
                           ->getMock();
@@ -98,11 +107,14 @@ class AuthTest extends PHPUnit_Framework_TestCase {
                       $this->anything()
                   );
 
-        $nop = function(...$params) { return; };
+        $nop = function (...$params) {
+            return;
+
+        };
         $curl_mock->method('options')
                   ->will($this->returnCallback($nop));
 
-        $duo = new DuoAPI\Auth(
+        $duo = new \DuoAPI\Auth(
             "IKEYIKEYIKEYIKEYIKEY",
             "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
             $host,
@@ -111,10 +123,11 @@ class AuthTest extends PHPUnit_Framework_TestCase {
         $duo->preauth("testuser");
     }
 
-    public function testLogoHttpArguments() {
+    public function testLogoHttpArguments()
+    {
         $successful_preauth_response = self::getSuccessfulPreauthResponse();
 
-        $curl_mock = $this->getMockBuilder('DuoAPI\CurlRequester')
+        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
                           ->setMethods(array('execute', 'options'))
                           ->disableOriginalConstructor()
                           ->getMock();
@@ -131,11 +144,14 @@ class AuthTest extends PHPUnit_Framework_TestCase {
                       $this->anything()
                   );
 
-        $nop = function(...$params) { return; };
+        $nop = function (...$params) {
+            return;
+
+        };
         $curl_mock->method('options')
                   ->will($this->returnCallback($nop));
 
-        $duo = new DuoAPI\Auth(
+        $duo = new \DuoAPI\Auth(
             "IKEYIKEYIKEYIKEYIKEY",
             "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
             $host,
@@ -144,13 +160,14 @@ class AuthTest extends PHPUnit_Framework_TestCase {
         $duo->logo();
     }
 
-    public function testLogoNonJson() {
+    public function testLogoNonJson()
+    {
         $non_json_response = array(
             "response" => "NON JSON STRING",
-            "success" => TRUE,
+            "success" => true,
         );
 
-        $curl_mock = $this->getMockBuilder('DuoAPI\CurlRequester')
+        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
                           ->setMethods(array('execute', 'options'))
                           ->disableOriginalConstructor()
                           ->getMock();
@@ -158,12 +175,15 @@ class AuthTest extends PHPUnit_Framework_TestCase {
         $curl_mock->method('execute')
                   ->willReturn($non_json_response);
 
-        $nop = function(...$params) { return; };
+        $nop = function (...$params) {
+            return;
+
+        };
         $curl_mock->expects($this->once())
                   ->method('options')
                   ->will($this->returnCallback($nop));
 
-        $duo = new DuoAPI\Auth(
+        $duo = new \DuoAPI\Auth(
             "IKEYIKEYIKEYIKEYIKEY",
             "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
             "api-duo.example.com",
@@ -173,10 +193,11 @@ class AuthTest extends PHPUnit_Framework_TestCase {
         $this->assertInternalType('string', $result["response"]);
     }
 
-    public function testLogoNotFound() {
+    public function testLogoNotFound()
+    {
         $unsuccessful_response = self::getUnsuccessfulResponse();
 
-        $curl_mock = $this->getMockBuilder('DuoAPI\CurlRequester')
+        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
                           ->setMethods(array('execute', 'options'))
                           ->disableOriginalConstructor()
                           ->getMock();
@@ -184,12 +205,15 @@ class AuthTest extends PHPUnit_Framework_TestCase {
         $curl_mock->method('execute')
                   ->willReturn($unsuccessful_response);
 
-        $nop = function(...$params) { return; };
+        $nop = function (...$params) {
+            return;
+
+        };
         $curl_mock->expects($this->once())
                   ->method('options')
                   ->will($this->returnCallback($nop));
 
-        $duo = new DuoAPI\Auth(
+        $duo = new \DuoAPI\Auth(
             "IKEYIKEYIKEYIKEYIKEY",
             "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
             "api-duo.example.com",
@@ -198,7 +222,4 @@ class AuthTest extends PHPUnit_Framework_TestCase {
         $result = $duo->logo();
         $this->assertInternalType('array', $result);
     }
-
 }
-
-?>

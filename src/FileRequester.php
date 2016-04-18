@@ -1,26 +1,26 @@
 <?php
 namespace DuoAPI;
 
-require_once("Requester.php");
+class FileRequester implements Requester
+{
 
-class FileRequester implements Requester {
-
-    function __construct() {
+    public function __construct()
+    {
         $this->http_options = array(
             "http" => array(),
             "ssl" => array(
                 /*
                  * Disallow self-signed certificates
                  */
-                "allow_self_signed" => FALSE,
+                "allow_self_signed" => false,
                 /*
                  * Enforce CN verification
                  */
-                "verify_peer" => TRUE,
+                "verify_peer" => true,
                 /*
                  * Avoid compression (CRIME attack)
                  */
-                "disable_compression" => TRUE,
+                "disable_compression" => true,
                 /*
                  * Require good ciphers. View the list with:
                  *
@@ -31,10 +31,12 @@ class FileRequester implements Requester {
         );
     }
 
-    function __destruct() {
+    public function __destruct()
+    {
     }
 
-    public function options($options) {
+    public function options($options)
+    {
         assert('is_array($options)');
 
         if (isset($options["user_agent"])) {
@@ -53,13 +55,14 @@ class FileRequester implements Requester {
         }
     }
 
-    public function execute($url, $method, $headers, $body = NULL) {
+    public function execute($url, $method, $headers, $body = null)
+    {
         assert('is_string($url)');
         assert('is_string($method)');
         assert('is_array($headers)');
         assert('is_string($body) || is_null($body)');
 
-        $headers = array_map(function($key, $value) {
+        $headers = array_map(function ($key, $value) {
             return sprintf("%s: %s", $key, $value);
         }, array_keys($headers), array_values($headers));
 
@@ -72,10 +75,10 @@ class FileRequester implements Requester {
 
         $context = stream_context_create($this->http_options);
 
-        $result = @file_get_contents($url, FALSE, $context);
+        $result = @file_get_contents($url, false, $context);
 
-        $success = TRUE;
-        if ($result === FALSE) {
+        $success = true;
+        if ($result === false) {
             $error = error_get_last();
             $errno = $error["type"];
             $message = $error["message"];
@@ -98,12 +101,9 @@ class FileRequester implements Requester {
                     'message' => $message,
                 )
             );
-            $success = FALSE;
+            $success = false;
         }
 
         return array("response" => $result, "success" => $success);
     }
-
 }
-
-?>

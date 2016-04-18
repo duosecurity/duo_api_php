@@ -1,9 +1,12 @@
 <?php
+namespace Unit;
 
-class AccountsTest extends PHPUnit_Framework_TestCase {
+class AccountsTest extends \PHPUnit_Framework_TestCase
+{
 
     // https://duo.com/support/documentation/adminapi#api-details
-    protected function getUnsuccessfulResponse() {
+    protected function getUnsuccessfulResponse()
+    {
         $unsuccessful_api_response = array(
             "response" => json_encode(array(
                 "stat" => "FAIL",
@@ -11,16 +14,17 @@ class AccountsTest extends PHPUnit_Framework_TestCase {
                 "message" => "Invalid request parameters",
                 "message_detail" => "username"
             )),
-            "success" => TRUE,
+            "success" => true,
         );
 
         return $unsuccessful_api_response;
     }
 
-    protected function getUnsuccessfulMockedAccountsClient() {
+    protected function getUnsuccessfulMockedAccountsClient()
+    {
         $unsuccessful_api_response = self::getUnsuccessfulResponse();
 
-        $curl_mock = $this->getMockBuilder('DuoAPI\CurlRequester')
+        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
                           ->setMethods(array('execute', 'options'))
                           ->disableOriginalConstructor()
                           ->getMock();
@@ -28,11 +32,14 @@ class AccountsTest extends PHPUnit_Framework_TestCase {
         $curl_mock->method('execute')
                   ->willReturn($unsuccessful_api_response);
 
-        $nop = function(...$params) { return; };
+        $nop = function (...$params) {
+            return;
+
+        };
         $curl_mock->method('options')
                   ->will($this->returnCallback($nop));
 
-        $client = new DuoAPI\Accounts(
+        $client = new \DuoAPI\Accounts(
             "IKEYIKEYIKEYIKEYIKEY",
             "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
             "api-duo.example.com",
@@ -42,27 +49,27 @@ class AccountsTest extends PHPUnit_Framework_TestCase {
         return $client;
     }
 
-    public function testListAccounts() {
+    public function testListAccounts()
+    {
         $client = self::getUnsuccessfulMockedAccountsClient();
         $result = $client->list_accounts();
 
         $this->assertEquals($result["response"]["stat"], "FAIL");
     }
 
-    public function testCreateAccount() {
+    public function testCreateAccount()
+    {
         $client = self::getUnsuccessfulMockedAccountsClient();
         $result = $client->create_account("username");
 
         $this->assertEquals($result["response"]["stat"], "FAIL");
     }
 
-    public function testDeleteAccount() {
+    public function testDeleteAccount()
+    {
         $client = self::getUnsuccessfulMockedAccountsClient();
         $result = $client->delete_account("userid");
 
         $this->assertEquals($result["response"]["stat"], "FAIL");
     }
-
 }
-
-?>

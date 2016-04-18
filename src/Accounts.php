@@ -5,11 +5,11 @@ namespace DuoAPI;
  * https://www.duosecurity.com/docs/accountsapi
  */
 
-require_once("Client.php");
+class Accounts extends Client
+{
 
-class Accounts extends Client {
-
-    public function list_accounts() {
+    public function list_accounts()
+    {
         $method = "POST";
         $endpoint = "/accounts/v1/account/list";
         $params = array();
@@ -17,7 +17,8 @@ class Accounts extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function create_account($name) {
+    public function create_account($name)
+    {
         assert('is_string($name)');
 
         $method = "POST";
@@ -29,7 +30,8 @@ class Accounts extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function delete_account($account_id) {
+    public function delete_account($account_id)
+    {
         assert('is_string($account_id)');
 
         $method = "POST";
@@ -40,7 +42,4 @@ class Accounts extends Client {
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
-
 }
-
-?>

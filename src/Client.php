@@ -3,15 +3,13 @@ namespace DuoAPI;
 
 use DateTime;
 
-require_once("Requester.php");
-require_once("CurlRequester.php");
-require_once("FileRequester.php");
-
-class Client {
+class Client
+{
 
     const DEFAULT_PAGING_LIMIT = '100';
 
-    public function __construct($ikey, $skey, $host, $requester = NULL, $paging = TRUE) {
+    public function __construct($ikey, $skey, $host, $requester = null, $paging = true)
+    {
         assert('is_string($ikey)');
         assert('is_string($skey)');
         assert('is_string($host)');
@@ -21,9 +19,9 @@ class Client {
         $this->skey = $skey;
         $this->host = $host;
 
-        if ($requester !== NULL) {
+        if ($requester !== null) {
             $this->requester = $requester;
-        } else if (in_array("curl", get_loaded_extensions())) {
+        } elseif (in_array("curl", get_loaded_extensions())) {
             $this->requester = new CurlRequester();
         } else {
             $this->requester = new FileRequester();
@@ -46,12 +44,14 @@ class Client {
      *             ->setRequesterOption("option2", "value2")
      *             ->setRequesterOption("option3", "value3");
      */
-    public function setRequesterOption($option, $value) {
+    public function setRequesterOption($option, $value)
+    {
         $this->options[$option] = $value;
         return $this;
     }
 
-    private function signParameters($method, $host, $path, $params, $skey, $ikey, $now) {
+    private function signParameters($method, $host, $path, $params, $skey, $ikey, $now)
+    {
         assert('is_string($method)');
         assert('is_string($host)');
         assert('is_string($path)');
@@ -69,14 +69,16 @@ class Client {
         return sprintf("Basic %s", $b64auth);
     }
 
-    private function sign($msg, $key) {
+    private function sign($msg, $key)
+    {
         assert('is_string($msg)');
         assert('is_string($key)');
 
         return hash_hmac("sha1", $msg, $key);
     }
 
-    private function canonicalize($method, $host, $path, $params, $now) {
+    private function canonicalize($method, $host, $path, $params, $now)
+    {
         assert('is_string($method)');
         assert('is_string($host)');
         assert('is_string($path)');
@@ -89,17 +91,19 @@ class Client {
         return $canon;
     }
 
-    private function urlEncodeParameters($params) {
+    private function urlEncodeParameters($params)
+    {
         assert('is_array($params)');
 
         ksort($params);
-        $args = array_map(function($key, $value) {
+        $args = array_map(function ($key, $value) {
             return sprintf("%s=%s", rawurlencode($key), rawurlencode($value));
         }, array_keys($params), array_values($params));
         return implode("&", $args);
     }
 
-    private function makeRequest($method, $uri, $body, $headers) {
+    private function makeRequest($method, $uri, $body, $headers)
+    {
         assert('is_string($method)');
         assert('is_string($uri)');
         assert('is_string($body) || is_null($body)');
@@ -113,7 +117,8 @@ class Client {
         return $result;
     }
 
-    public function apiCall($method, $path, $params) {
+    public function apiCall($method, $path, $params)
+    {
         assert('is_string($method)');
         assert('is_string($path)');
         assert('is_array($params)');
@@ -139,24 +144,26 @@ class Client {
             $headers["Content-Length"] = strval(strlen($body));
             $uri = $path;
         } else {
-            $body = NULL;
+            $body = null;
             $uri = $path . (!empty($params) ? "?" . self::urlEncodeParameters($params) : "");
         }
 
         return self::makeRequest($method, $uri, $body, $headers);
     }
 
-    public function jsonApiCall($method, $path, $params) {
+    public function jsonApiCall($method, $path, $params)
+    {
         assert('is_string($method)');
         assert('is_string($path)');
         assert('is_array($params)');
 
         $result = self::apiCall($method, $path, $params);
-        $result["response"] = json_decode($result["response"], TRUE);
+        $result["response"] = json_decode($result["response"], true);
         return $result;
     }
 
-    public function jsonPagingApiCall($method, $path, $params) {
+    public function jsonPagingApiCall($method, $path, $params)
+    {
         assert('is_string($method)');
         assert('is_string($path)');
         assert('is_array($params)');
@@ -168,7 +175,7 @@ class Client {
         }
 
         $result = [];
-        while ($offset !== FALSE) {
+        while ($offset !== false) {
             $params["offset"] = strval($offset);
             $paged_result = self::jsonApiCall($method, $path, $params);
 
@@ -176,14 +183,14 @@ class Client {
              * If we receive any sort of error during paging calls we're going
              * to bail. This is so we don't return partial results.
              */
-            $network_error = !isset($paged_result["success"]) || $paged_result["success"] !== TRUE;
+            $network_error = !isset($paged_result["success"]) || $paged_result["success"] !== true;
             $api_error = !isset($paged_result["response"]["stat"]) || $paged_result["response"]["stat"] !== "OK";
             if ($network_error || $api_error) {
                 return $paged_result;
             }
 
             $offset = isset($paged_result["response"]["metadata"]["next_offset"]) ?
-                $paged_result["response"]["metadata"]["next_offset"] : FALSE;
+                $paged_result["response"]["metadata"]["next_offset"] : false;
 
             if (isset($paged_result["response"]["metadata"])) {
                 unset($paged_result["response"]["metadata"]);

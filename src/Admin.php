@@ -5,16 +5,16 @@ namespace DuoAPI;
  * https://www.duosecurity.com/docs/adminapi
  */
 
-require_once("Client.php");
-
-class Admin extends Client {
+class Admin extends Client
+{
 
     /*
      * Values a user/group's status can be set to. Note that this is what
      * they can be SET to, there are additional values that can be retrieved.
      */
     private static $SET_STATUS = array("active", "bypass", "disabled");
-    private function is_status($status) {
+    private function is_status($status)
+    {
         return is_string($status) && in_array($status, self::$SET_STATUS);
     }
 
@@ -24,7 +24,8 @@ class Admin extends Client {
      * https://www.duosecurity.com/docs/adminapi.
      */
 
-    public function users($username = NULL, $userid = FALSE) {
+    public function users($username = null, $userid = false)
+    {
         assert('is_string($username) || is_null($username)');
 
         $method = "GET";
@@ -33,8 +34,7 @@ class Admin extends Client {
 
         if ($username && !$userid) {
             $params["username"] = $username;
-        }
-        else if ($username && $userid) {
+        } elseif ($username && $userid) {
             $endpoint .= ("/" . $username);
         }
 
@@ -46,11 +46,12 @@ class Admin extends Client {
     }
 
     public function create_user(
-            $username,
-            $realname = NULL,
-            $email = NULL,
-            $status = NULL,
-            $notes = NULL) {
+        $username,
+        $realname = null,
+        $email = null,
+        $status = null,
+        $notes = null
+    ) {
         assert('is_string($username)');
         assert('is_string($realname) || is_null($realname)');
         assert('is_string($email) || is_null($email)');
@@ -80,13 +81,14 @@ class Admin extends Client {
     }
 
     public function create_phone(
-            $number = NULL,
-            $name = NULL,
-            $extension = NULL,
-            $type = NULL,
-            $platform = NULL,
-            $predelay = NULL,
-            $postdelay = NULL) {
+        $number = null,
+        $name = null,
+        $extension = null,
+        $type = null,
+        $platform = null,
+        $predelay = null,
+        $postdelay = null
+    ) {
         assert('is_string($number) || is_null($number)');
         assert('is_string($name) || is_null($name)');
         assert('is_string($extension) || is_null($extension)');
@@ -124,7 +126,8 @@ class Admin extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function user_associate_phone($userid, $phoneid) {
+    public function user_associate_phone($userid, $phoneid)
+    {
         assert('is_string($userid)');
         assert('is_string($phoneid)');
 
@@ -137,7 +140,8 @@ class Admin extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function user_associate_token($userid, $tokenid) {
+    public function user_associate_token($userid, $tokenid)
+    {
         assert('is_string($userid)');
         assert('is_string($tokenid)');
 
@@ -150,7 +154,8 @@ class Admin extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function user_associate_group($userid, $groupid) {
+    public function user_associate_group($userid, $groupid)
+    {
         assert('is_string($userid)');
         assert('is_string($groupid)');
 
@@ -163,7 +168,8 @@ class Admin extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function groups($groupid = NULL) {
+    public function groups($groupid = null)
+    {
         $method = "GET";
         $endpoint = "/admin/v1/groups";
         $params = array();
@@ -179,7 +185,8 @@ class Admin extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function integrations($ikey = NULL) {
+    public function integrations($ikey = null)
+    {
         $method = "GET";
         $endpoint = "/admin/v1/integrations";
         $params = array();
@@ -195,7 +202,8 @@ class Admin extends Client {
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function summary() {
+    public function summary()
+    {
 
         $method = "GET";
         $endpoint = "/admin/v1/info/summary";
@@ -203,7 +211,4 @@ class Admin extends Client {
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
-
 }
-
-?>

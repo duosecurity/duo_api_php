@@ -10,6 +10,14 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="false">
+    <logging>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+    </logging>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
+        </whitelist>
+    </filter>
     <php>
         <const name="GOOD_STUNNEL_SERVER" value="localhost:4443"/>
         <const name="SELF_SIGNED_STUNNEL_SERVER" value="localhost:4444"/>
