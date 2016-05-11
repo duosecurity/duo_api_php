@@ -1,20 +1,19 @@
 <?php
 namespace Unit;
 
-class AuthTest extends \PHPUnit_Framework_TestCase
+class AuthTest extends BaseTest
 {
-
     // https://www.duosecurity.com/docs/authapi#/preauth
-    protected function getSuccessfulPreauthResponse()
+    protected static function getSuccessfulPreauthResponse()
     {
-        $successful_preauth_response = array(
-            "response" => json_encode(array(
+        $successful_preauth_response = [
+            "response" => json_encode([
                 "stat" => "OK",
-                "response" => array(
+                "response" => [
                     "result" => "auth",
                     "status_msg" => "Account is active",
-                    "devices" => array(
-                        array(
+                    "devices" => [
+                        [
                             "device" => "DPFZRS9FB0D46QFTM891",
                             "type" => "phone",
                             "number" => "XXX-XXX-0100",
@@ -24,63 +23,28 @@ class AuthTest extends \PHPUnit_Framework_TestCase
                                 "sms",
                                 "phone"
                             ]
-                        ),
-                        array(
+                        ],
+                        [
                             "device" => "DHEKH0JJIYC1LX3AZWO4",
                             "type" => "token",
                             "name" => "0"
-                        )
-                    ),
-                )
-            )),
+                        ]
+                    ],
+                ]
+            ]),
             "success" => true,
-        );
+        ];
 
         return $successful_preauth_response;
-    }
-
-    // https://www.duosecurity.com/docs/authapi#base-url
-    protected function getUnsuccessfulResponse()
-    {
-        $unsuccessful_preauth_response = array(
-            "response" => json_encode(array(
-                "stat" => "FAIL",
-                "code" => 40002,
-                "message" => "Invalid request parameters",
-                "message_detail" => "username"
-            )),
-            "success" => true,
-        );
-
-        return $unsuccessful_preauth_response;
     }
 
     public function testPreauthCall()
     {
         $successful_preauth_response = self::getSuccessfulPreauthResponse();
 
-        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
-                          ->setMethods(array('execute', 'options'))
-                          ->disableOriginalConstructor()
-                          ->getMock();
+        $auth_client = self::getMockedClient("Auth", $successful_preauth_response, $paged = false);
 
-        $curl_mock->method('execute')
-                  ->willReturn($successful_preauth_response);
-
-        $nop = function (...$params) {
-            return;
-
-        };
-        $curl_mock->method('options')
-                  ->will($this->returnCallback($nop));
-
-        $duo = new \DuoAPI\Auth(
-            "IKEYIKEYIKEYIKEYIKEY",
-            "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
-            "api-duo.example.com",
-            $curl_mock
-        );
-        $result = $duo->preauth("testuser");
+        $result = $auth_client->preauth("testuser");
 
         $this->assertEquals($result["response"]["stat"], "OK");
         $this->assertEquals($result["response"]["response"]["result"], "auth");
@@ -90,10 +54,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     {
         $successful_preauth_response = self::getSuccessfulPreauthResponse();
 
-        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
-                          ->setMethods(array('execute', 'options'))
-                          ->disableOriginalConstructor()
-                          ->getMock();
+        $curl_mock = $this->mocked_curl_requester;
 
         // The actual test being performed is in the 'equalTo(...)' calls.
         $host = "api-duo.example.com";
@@ -106,13 +67,6 @@ class AuthTest extends \PHPUnit_Framework_TestCase
                       $this->anything(),
                       $this->anything()
                   );
-
-        $nop = function (...$params) {
-            return;
-
-        };
-        $curl_mock->method('options')
-                  ->will($this->returnCallback($nop));
 
         $duo = new \DuoAPI\Auth(
             "IKEYIKEYIKEYIKEYIKEY",
@@ -127,10 +81,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     {
         $successful_preauth_response = self::getSuccessfulPreauthResponse();
 
-        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
-                          ->setMethods(array('execute', 'options'))
-                          ->disableOriginalConstructor()
-                          ->getMock();
+        $curl_mock = $this->mocked_curl_requester;
 
         // The actual test being performed is in the 'equalTo(...)' calls.
         $host = "api-duo.example.com";
@@ -144,13 +95,6 @@ class AuthTest extends \PHPUnit_Framework_TestCase
                       $this->anything()
                   );
 
-        $nop = function (...$params) {
-            return;
-
-        };
-        $curl_mock->method('options')
-                  ->will($this->returnCallback($nop));
-
         $duo = new \DuoAPI\Auth(
             "IKEYIKEYIKEYIKEYIKEY",
             "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
@@ -162,34 +106,15 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public function testLogoNonJson()
     {
-        $non_json_response = array(
+        $non_json_response = [
             "response" => "NON JSON STRING",
             "success" => true,
-        );
+        ];
 
-        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
-                          ->setMethods(array('execute', 'options'))
-                          ->disableOriginalConstructor()
-                          ->getMock();
+        $auth_client = self::getMockedClient("Auth", $non_json_response, $paged = false);
 
-        $curl_mock->method('execute')
-                  ->willReturn($non_json_response);
+        $result = $auth_client->logo();
 
-        $nop = function (...$params) {
-            return;
-
-        };
-        $curl_mock->expects($this->once())
-                  ->method('options')
-                  ->will($this->returnCallback($nop));
-
-        $duo = new \DuoAPI\Auth(
-            "IKEYIKEYIKEYIKEYIKEY",
-            "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
-            "api-duo.example.com",
-            $curl_mock
-        );
-        $result = $duo->logo();
         $this->assertInternalType('string', $result["response"]);
     }
 
@@ -197,29 +122,10 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     {
         $unsuccessful_response = self::getUnsuccessfulResponse();
 
-        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
-                          ->setMethods(array('execute', 'options'))
-                          ->disableOriginalConstructor()
-                          ->getMock();
+        $auth_client = self::getMockedClient("Auth", $unsuccessful_response, $paged = false);
 
-        $curl_mock->method('execute')
-                  ->willReturn($unsuccessful_response);
+        $result = $auth_client->logo();
 
-        $nop = function (...$params) {
-            return;
-
-        };
-        $curl_mock->expects($this->once())
-                  ->method('options')
-                  ->will($this->returnCallback($nop));
-
-        $duo = new \DuoAPI\Auth(
-            "IKEYIKEYIKEYIKEYIKEY",
-            "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
-            "api-duo.example.com",
-            $curl_mock
-        );
-        $result = $duo->logo();
         $this->assertInternalType('array', $result);
     }
 }

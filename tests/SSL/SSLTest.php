@@ -19,17 +19,17 @@ class SSLTest extends \PHPUnit_Framework_TestCase
     {
         $silence = '>/dev/null 2>&1 & echo $!';
 
-        $commands = array(
+        $commands = [
             sprintf("php -S %s", PHP_SERVER),
             sprintf("stunnel3 -d %s -r %s -p %s -P '' -f", GOOD_STUNNEL_SERVER, PHP_SERVER, dirname(__FILE__) . "/" . "good.pem"),
             sprintf("stunnel3 -d %s -r %s -p %s -P '' -f", SELF_SIGNED_STUNNEL_SERVER, PHP_SERVER, dirname(__FILE__) . "/" . "self.pem"),
             sprintf("stunnel3 -d %s -r %s -p %s -P '' -f", BAD_HOSTNAME_STUNNEL_SERVER, PHP_SERVER, dirname(__FILE__) . "/" . "badhost.pem"),
-        );
+        ];
 
-        $pids = array();
+        $pids = [];
 
         foreach ($commands as $command) {
-            $output = array();
+            $output = [];
             exec($command . $silence, $output);
             $pid = (int) $output[0];
             array_push($pids, $pid);

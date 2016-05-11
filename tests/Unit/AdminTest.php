@@ -1,25 +1,24 @@
 <?php
 namespace Unit;
 
-class AdminTest extends \PHPUnit_Framework_TestCase
+class AdminTest extends BaseTest
 {
-
     // https://www.duosecurity.com/docs/adminapi#/integrations
-    protected function getSuccessfulIntegrationsResponse()
+    protected static function getSuccessfulIntegrationsResponse()
     {
-        $successful_integrations_response = array(
-            "response" => json_encode(array(
+        $successful_integrations_response = [
+            "response" => json_encode([
                 "stat" => "OK",
-                "response" => array(
+                "response" => [
                     "enroll_policy" => "enroll",
                     "greeting" => "",
-                    "groups_allowed" => array (),
+                    "groups_allowed" => [],
                     "integration_key" => "DIRWIH0ZZPV4G88B37VQ",
-                    "ip_whitelist" => array (
+                    "ip_whitelist" => [
                         0 => "192.0.2.8",
                         1 => "198.51.100.0-198.51.100.20",
                         2 => "203.0.113.0/24",
-                        ),
+                    ],
                     "ip_whitelist_enroll_policy" => "enforce",
                     "name" => "Integration for the web server",
                     "notes" => "",
@@ -27,56 +26,21 @@ class AdminTest extends \PHPUnit_Framework_TestCase
                     "type" => "websdk",
                     "trusted_device_days" => 0,
                     "username_normalization_policy" => "None",
-                ),
-            )),
+                ],
+            ]),
             "success" => true,
-        );
+        ];
 
         return $successful_integrations_response;
-    }
-
-    // https://www.duosecurity.com/docs/adminapi#base-url
-    protected function getUnsuccessfulResponse()
-    {
-        $unsuccessful_preauth_response = array(
-            "response" => json_encode(array(
-                "stat" => "FAIL",
-                "code" => 40002,
-                "message" => "Invalid request parameters",
-                "message_detail" => "username"
-            )),
-            "success" => true,
-        );
-
-        return $unsuccessful_preauth_response;
     }
 
     public function testIntegrationsWhenSuccessful()
     {
         $successful_response = self::getSuccessfulIntegrationsResponse();
 
-        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
-                      ->setMethods(array('execute', 'options'))
-                      ->disableOriginalConstructor()
-                      ->getMock();
+        $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
 
-        $curl_mock->method('execute')
-              ->willReturn($successful_response);
-
-        $nop = function (...$params) {
-            return;
-
-        };
-        $curl_mock->method('options')
-              ->will($this->returnCallback($nop));
-
-        $duo = new \DuoAPI\Admin(
-            "IKEYIKEYIKEYIKEYIKEY",
-            "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
-            "api-duo.example.com",
-            $curl_mock
-        );
-        $result = $duo->integrations("IKEYIKEYIKEYIKEYIKEY");
+        $result = $admin_client->integrations("IKEYIKEYIKEYIKEYIKEY");
 
         $expected_response = json_decode($successful_response["response"], true)["response"];
         $this->assertEquals("OK", $result["response"]["stat"]);
@@ -87,29 +51,9 @@ class AdminTest extends \PHPUnit_Framework_TestCase
     {
         $unsuccessful_response = self::getUnsuccessfulResponse();
 
-        $curl_mock = $this->getMockBuilder('\DuoAPI\CurlRequester')
-                          ->setMethods(array('execute', 'options'))
-                          ->disableOriginalConstructor()
-                          ->getMock();
+        $admin_client = self::getMockedClient("Admin", $unsuccessful_response, $paged = false);
 
-        $curl_mock->method('execute')
-                  ->willReturn($unsuccessful_response);
-
-        $nop = function (...$params) {
-            return;
-
-        };
-        $curl_mock->expects($this->once())
-                  ->method('options')
-                  ->will($this->returnCallback($nop));
-
-        $duo = new \DuoAPI\Admin(
-            "IKEYIKEYIKEYIKEYIKEY",
-            "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
-            "api-duo.example.com",
-            $curl_mock
-        );
-        $result = $duo->integrations();
+        $result = $admin_client->integrations();
 
         $expected_response = json_decode($unsuccessful_response["response"], true);
         $this->assertTrue($result["success"]);
