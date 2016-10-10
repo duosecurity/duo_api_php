@@ -7,7 +7,12 @@ class FileRequester implements Requester
     public function __construct()
     {
         $this->http_options = array(
-            "http" => array(),
+            "http" => array(
+                /*
+                 * We'll handle HTTP errors on our own
+                 */
+                "ignore_errors" => true,
+            ),
             "ssl" => array(
                 /*
                  * Disallow self-signed certificates
@@ -33,6 +38,28 @@ class FileRequester implements Requester
 
     public function __destruct()
     {
+    }
+
+    protected static function parse_http_response_header($headers)
+    {
+        /*
+         * It's possible that there will be multiple HTTP status codes in
+         * our array. For example, this can happen when we're redirected so
+         * we receive a 301 then 200. We should take the last status code
+         * received.
+         */
+        $status_code_regex = '#^HTTP/\d\.\d[ \t]+(?<http_status_code>\d+)#i';
+
+        $status_code_headers = preg_grep($status_code_regex, $headers);
+        $status_codes = array_map(
+            function ($header) use ($status_code_regex) {
+                $status_code = preg_match($status_code_regex, $header, $matches);
+                return (int) $matches['http_status_code'];
+            },
+            $status_code_headers
+        );
+
+        return end($status_codes);
     }
 
     public function options($options)
@@ -77,6 +104,7 @@ class FileRequester implements Requester
 
         $result = @file_get_contents($url, false, $context);
 
+        $http_status_code = null;
         $success = true;
         if ($result === false) {
             $error = error_get_last();
@@ -102,8 +130,15 @@ class FileRequester implements Requester
                 )
             );
             $success = false;
+        } else {
+            // https://secure.php.net/manual/en/reserved.variables.httpresponseheader.php
+            $http_status_code = self::parse_http_response_header($http_response_header);
         }
 
-        return array("response" => $result, "success" => $success);
+        return array(
+            "response" => $result,
+            "success" => $success,
+            "http_status_code" => $http_status_code
+        );
     }
 }

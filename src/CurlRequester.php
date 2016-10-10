@@ -75,6 +75,7 @@ class CurlRequester implements Requester
 
         $result = curl_exec($this->ch);
 
+        $http_status_code = null;
         $success = true;
         if ($result === false) {
             $error = curl_error($this->ch);
@@ -99,8 +100,14 @@ class CurlRequester implements Requester
                 )
             );
             $success = false;
+        } else {
+            $http_status_code = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
         }
 
-        return array("response" => $result, "success" => $success);
+        return array(
+            "response" => $result,
+            "success" => $success,
+            "http_status_code" => $http_status_code
+        );
     }
 }

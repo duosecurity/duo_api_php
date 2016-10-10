@@ -95,7 +95,7 @@ class SSLTest extends \PHPUnit_Framework_TestCase
          * SSL *connection* is made, there's not a fully implemented API
          * waiting for us on the other side of the connection.
          */
-        $this->assertContains("404", $result["response"]["message"]);
+        $this->assertEquals(404, $result["http_status_code"]);
     }
 
     /*
