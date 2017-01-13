@@ -77,6 +77,32 @@ class AuthTest extends BaseTest
         $duo->preauth("testuser");
     }
 
+    public function testAuthStatusHttpArguments()
+    {
+        $curl_mock = $this->mocked_curl_requester;
+
+        $txid = 'IDIDIDIDIDIDIDID';
+
+        // The actual test being performed is in the 'equalTo(...)' calls.
+        $host = "api-duo.example.com";
+        $curl_mock->expects($this->once())
+                  ->method('execute')
+                  ->with(
+                      $this->equalTo("https://" . $host . "/auth/v2/auth_status?txid=" . $txid),
+                      $this->equalTo('GET'),
+                      $this->anything(),
+                      $this->anything()
+                  );
+
+        $duo = new \DuoAPI\Auth(
+            "IKEYIKEYIKEYIKEYIKEY",
+            "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
+            $host,
+            $curl_mock
+        );
+        $duo->auth_status($txid);
+    }
+
     public function testLogoHttpArguments()
     {
         $successful_preauth_response = self::getSuccessfulPreauthResponse();
