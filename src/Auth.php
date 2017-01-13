@@ -163,7 +163,7 @@ class Auth extends Client
     {
         assert('is_string($txid)');
 
-        $method = "POST";
+        $method = "GET";
         $endpoint = "/auth/v2/auth_status";
         $params = array(
             "txid" => $txid,
