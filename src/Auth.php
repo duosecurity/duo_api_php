@@ -132,6 +132,7 @@ class Auth extends Client
         }
 
         $params["factor"] = $factor;
+
         if ($factor === "push") {
             assert('array_key_exists("device", $factor_params) && is_string($factor_params["device"])');
             $params["device"] = $factor_params["device"];
@@ -152,6 +153,9 @@ class Auth extends Client
             assert('array_key_exists("device", $factor_params) && is_string($factor_params["device"])');
             $params["device"] = $factor_params["device"];
         } elseif ($factor === "sms") {
+            assert('array_key_exists("device", $factor_params) && is_string($factor_params["device"])');
+            $params["device"] = $factor_params["device"];
+        } elseif ($factor === "auto") {
             assert('array_key_exists("device", $factor_params) && is_string($factor_params["device"])');
             $params["device"] = $factor_params["device"];
         }
