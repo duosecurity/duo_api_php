@@ -38,6 +38,87 @@ class AuthTest extends BaseTest
         return $successful_preauth_response;
     }
 
+    public function testPingCall()
+    {
+        $successful_ping_response = [
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => [
+                    "time" => 1357020061,
+                ],
+            ]),
+            "success" => true,
+        ];
+
+        $auth_client = self::getMockedClient("Auth", $successful_ping_response, $paged = false);
+
+        $result = $auth_client->ping();
+
+        $this->assertEquals($result["response"]["stat"], "OK");
+        $this->assertTrue($result["success"]);
+    }
+
+    public function testCheckCall()
+    {
+        $successful_check_response = [
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => [
+                    "time" => 1357020061,
+                ],
+            ]),
+            "success" => true,
+        ];
+
+        $auth_client = self::getMockedClient("Auth", $successful_check_response, $paged = false);
+
+        $result = $auth_client->check();
+
+        $this->assertEquals($result["response"]["stat"], "OK");
+        $this->assertTrue($result["success"]);
+    }
+
+    public function testEnrollCall()
+    {
+        $successful_enroll_response = [
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => [
+                    "activation_barcode" => "https =>//api-eval.duosecurity.com/frame/qr?value=8LIRa5danrICkhHtkLxi-cKLu2DWzDYCmBwBHY2YzW5ZYnYaRxA",
+                    "activation_code" => "duo =>//8LIRa5danrICkhHtkLxi-cKLu2DWzDYCmBwBHY2YzW5ZYnYaRxA",
+                    "expiration" => 1357020061,
+                    "user_id" => "DU94SWSN4ADHHJHF2HXT",
+                    "username" => "49c6c3097adb386048c84354d82ea63d",
+                ],
+            ]),
+            "success" => true,
+        ];
+
+        $auth_client = self::getMockedClient("Auth", $successful_enroll_response, $paged = false);
+
+        $result = $auth_client->enroll('testuser');
+
+        $this->assertEquals($result["response"]["stat"], "OK");
+    }
+
+    public function testEnrollStatusCall()
+    {
+        $successful_enroll_status_response = [
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => "success",
+            ]),
+            "success" => true,
+        ];
+
+        $auth_client = self::getMockedClient("Auth", $successful_enroll_status_response, $paged = false);
+
+        $result = $auth_client->enroll_status('testuser', 'activation');
+
+        $this->assertEquals($result["response"]["stat"], "OK");
+        $this->assertTrue($result["success"]);
+    }
+
     public function testPreauthCall()
     {
         $successful_preauth_response = self::getSuccessfulPreauthResponse();
@@ -75,6 +156,50 @@ class AuthTest extends BaseTest
             $curl_mock
         );
         $duo->preauth("testuser");
+    }
+
+    public function testAuthCall()
+    {
+        $successful_auth_response = [
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => [
+                    "result" => "allow",
+                    "status" => "allow",
+                    "status_msg" => "Success. Logging you in...",
+                ],
+            ]),
+            "success" => true,
+        ];
+
+        $auth_client = self::getMockedClient("Auth", $successful_auth_response, $paged = false);
+
+        $result = $auth_client->auth('testuser', 'passcode', ['passcode' => '123']);
+
+        $this->assertEquals($result["response"]["stat"], "OK");
+        $this->assertTrue($result["success"]);
+    }
+
+    public function testAuthStatusCall()
+    {
+        $successful_auth_status_response = [
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => [
+                    "result" => "waiting",
+                    "status" => "pushed",
+                    "status_msg" => "Pushed a login request to your phone...",
+                ],
+            ]),
+            "success" => true,
+        ];
+
+        $auth_client = self::getMockedClient("Auth", $successful_auth_status_response, $paged = false);
+
+        $result = $auth_client->auth_status('txidvalue');
+
+        $this->assertEquals($result["response"]["stat"], "OK");
+        $this->assertTrue($result["success"]);
     }
 
     public function testAuthStatusHttpArguments()
