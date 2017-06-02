@@ -8,6 +8,9 @@ namespace SSL;
 
 class SSLTest extends \PHPUnit_Framework_TestCase
 {
+    // https://curl.haxx.se/libcurl/c/libcurl-errors.html
+    const CURLE_PEER_FAILED_VERIFICATION = 51;
+    const CURLE_SSL_CACERT = 60;
 
     public function __construct()
     {
@@ -121,8 +124,8 @@ class SSLTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
         $this->assertEquals(
-            $result["response"]["message"],
-            "SSL certificate problem: unable to get local issuer certificate"
+            $result["response"]["code"],
+            self::CURLE_SSL_CACERT
         );
     }
 
@@ -163,8 +166,8 @@ class SSLTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
         $this->assertEquals(
-            $result["response"]["message"],
-            "SSL certificate problem: self signed certificate"
+            $result["response"]["code"],
+            self::CURLE_SSL_CACERT
         );
     }
 
@@ -205,13 +208,9 @@ class SSLTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-
-        /*
-         * The certificate was generated with hostname 'test'.
-         */
         $this->assertEquals(
-            $result["response"]["message"],
-            "SSL: certificate subject name 'test' does not match target host name 'localhost'"
+            $result["response"]["code"],
+            self::CURLE_PEER_FAILED_VERIFICATION
         );
     }
 
