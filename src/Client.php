@@ -8,7 +8,7 @@ class Client
 
     const DEFAULT_PAGING_LIMIT = '100';
 
-    public function __construct($ikey, $skey, $host, $requester = null, $paging = true)
+    public function __construct($ikey, $skey, $host, $requester = null, $paging = true, $timeout = 10)
     {
         assert('is_string($ikey)');
         assert('is_string($skey)');
@@ -31,7 +31,7 @@ class Client
 
         // Default requester options
         $this->options = array(
-            "timeout" => 10,
+            "timeout" => $timeout,
         );
     }
 
@@ -61,7 +61,7 @@ class Client
         assert('is_string($now)');
 
         $canon = self::canonicalize($method, $host, $path, $params, $now);
-        
+
         $signature = self::sign($canon, $skey);
         $auth = sprintf("%s:%s", $ikey, $signature);
         $b64auth = base64_encode($auth);
