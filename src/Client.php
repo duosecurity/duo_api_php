@@ -10,10 +10,10 @@ class Client
 
     public function __construct($ikey, $skey, $host, $requester = null, $paging = true)
     {
-        assert('is_string($ikey)');
-        assert('is_string($skey)');
-        assert('is_string($host)');
-        assert('is_null($requester) || is_subclass_of($requester, "DuoAPI\\Requester")');
+        assert(is_string($ikey));
+        assert(is_string($skey));
+        assert(is_string($host));
+        assert(is_null($requester) || is_subclass_of($requester, "DuoAPI\\Requester"));
 
         $this->ikey = $ikey;
         $this->skey = $skey;
@@ -52,13 +52,13 @@ class Client
 
     private function signParameters($method, $host, $path, $params, $skey, $ikey, $now)
     {
-        assert('is_string($method)');
-        assert('is_string($host)');
-        assert('is_string($path)');
-        assert('is_array($params)');
-        assert('is_string($skey)');
-        assert('is_string($ikey)');
-        assert('is_string($now)');
+        assert(is_string($method));
+        assert(is_string($host));
+        assert(is_string($path));
+        assert(is_array($params));
+        assert(is_string($skey));
+        assert(is_string($ikey));
+        assert(is_string($now));
 
         $canon = self::canonicalize($method, $host, $path, $params, $now);
         
@@ -71,19 +71,19 @@ class Client
 
     private function sign($msg, $key)
     {
-        assert('is_string($msg)');
-        assert('is_string($key)');
+        assert(is_string($msg));
+        assert(is_string($key));
 
         return hash_hmac("sha1", $msg, $key);
     }
 
     private function canonicalize($method, $host, $path, $params, $now)
     {
-        assert('is_string($method)');
-        assert('is_string($host)');
-        assert('is_string($path)');
-        assert('is_array($params)');
-        assert('is_string($now)');
+        assert(is_string($method));
+        assert(is_string($host));
+        assert(is_string($path));
+        assert(is_array($params));
+        assert(is_string($now));
 
         $args = self::urlEncodeParameters($params);
         $canon = array($now, strtoupper($method), strtolower($host), $path, $args);
@@ -93,7 +93,7 @@ class Client
 
     private function urlEncodeParameters($params)
     {
-        assert('is_array($params)');
+        assert(is_array($params));
 
         ksort($params);
         $args = array_map(function ($key, $value) {
@@ -104,10 +104,10 @@ class Client
 
     private function makeRequest($method, $uri, $body, $headers)
     {
-        assert('is_string($method)');
-        assert('is_string($uri)');
-        assert('is_string($body) || is_null($body)');
-        assert('is_array($headers)');
+        assert(is_string($method));
+        assert(is_string($uri));
+        assert(is_string($body) || is_null($body));
+        assert(is_array($headers));
 
         $url = "https://" . $this->host . $uri;
 
@@ -119,9 +119,9 @@ class Client
 
     public function apiCall($method, $path, $params)
     {
-        assert('is_string($method)');
-        assert('is_string($path)');
-        assert('is_array($params)');
+        assert(is_string($method));
+        assert(is_string($path));
+        assert(is_array($params));
 
         $now = date(DateTime::RFC2822);
 
@@ -153,9 +153,9 @@ class Client
 
     public function jsonApiCall($method, $path, $params)
     {
-        assert('is_string($method)');
-        assert('is_string($path)');
-        assert('is_array($params)');
+        assert(is_string($method));
+        assert(is_string($path));
+        assert(is_array($params));
 
         $result = self::apiCall($method, $path, $params);
         $result["response"] = json_decode($result["response"], true);
@@ -164,9 +164,9 @@ class Client
 
     public function jsonPagingApiCall($method, $path, $params)
     {
-        assert('is_string($method)');
-        assert('is_string($path)');
-        assert('is_array($params)');
+        assert(is_string($method));
+        assert(is_string($path));
+        assert(is_array($params));
 
         $offset = 0;
 

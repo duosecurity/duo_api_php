@@ -37,8 +37,8 @@ class Auth extends Client
 
     public function enroll($username = null, $valid_secs = null)
     {
-        assert('is_string($username) || is_null($username)');
-        assert('is_int($valid_secs) || is_null($valid_secs)');
+        assert(is_string($username) || is_null($username));
+        assert(is_int($valid_secs) || is_null($valid_secs));
 
         $method = "POST";
         $endpoint = "/auth/v2/enroll";
@@ -56,8 +56,8 @@ class Auth extends Client
 
     public function enroll_status($user_id, $activation_code)
     {
-        assert('is_string($user_id)');
-        assert('is_string($activation_code)');
+        assert(is_string($user_id));
+        assert(is_string($activation_code));
 
         $method = "POST";
         $endpoint = "/auth/v2/enroll_status";
@@ -75,10 +75,10 @@ class Auth extends Client
         $trusted_device_token = null,
         $username = true
     ) {
-        assert('is_string($user_identifier)');
-        assert('is_string($ipaddr) || is_null($ipaddr)');
-        assert('is_string($trusted_device_token) || is_null($trusted_device_token)');
-        assert('is_bool($username)');
+        assert(is_string($user_identifier));
+        assert(is_string($ipaddr) || is_null($ipaddr));
+        assert(is_string($trusted_device_token) || is_null($trusted_device_token));
+        assert(is_bool($username));
 
         $method = "POST";
         $endpoint = "/auth/v2/preauth";
@@ -107,13 +107,15 @@ class Auth extends Client
         $async = false,
         $username = true
     ) {
-        assert('is_string($user_identifier)');
-        assert('is_string($factor) && in_array($factor,
-            array("auto", "push", "passcode", "sms", "phone"))');
-        assert('is_array($factor_params)');
-        assert('is_string($ipaddr) || is_null($ipaddr)');
-        assert('is_bool($async)');
-        assert('is_bool($username)');
+        assert(is_string($user_identifier));
+        assert(
+            is_string($factor) &&
+            in_array($factor, array("auto", "push", "passcode", "sms", "phone"))
+        );
+        assert(is_array($factor_params));
+        assert(is_string($ipaddr) || is_null($ipaddr));
+        assert(is_bool($async));
+        assert(is_bool($username));
 
         $method = "POST";
         $endpoint = "/auth/v2/auth";
@@ -134,7 +136,7 @@ class Auth extends Client
         $params["factor"] = $factor;
 
         if ($factor === "push") {
-            assert('array_key_exists("device", $factor_params) && is_string($factor_params["device"])');
+            assert(array_key_exists("device", $factor_params) && is_string($factor_params["device"]));
             $params["device"] = $factor_params["device"];
 
             if (array_key_exists("type", $factor_params)) {
@@ -147,16 +149,16 @@ class Auth extends Client
                 $params["pushinfo"] = $factor_params["pushinfo"];
             }
         } elseif ($factor === "passcode") {
-            assert('array_key_exists("passcode", $factor_params) && is_string($factor_params["passcode"])');
+            assert(array_key_exists("passcode", $factor_params) && is_string($factor_params["passcode"]));
             $params["passcode"] = $factor_params["passcode"];
         } elseif ($factor === "phone") {
-            assert('array_key_exists("device", $factor_params) && is_string($factor_params["device"])');
+            assert(array_key_exists("device", $factor_params) && is_string($factor_params["device"]));
             $params["device"] = $factor_params["device"];
         } elseif ($factor === "sms") {
-            assert('array_key_exists("device", $factor_params) && is_string($factor_params["device"])');
+            assert(array_key_exists("device", $factor_params) && is_string($factor_params["device"]));
             $params["device"] = $factor_params["device"];
         } elseif ($factor === "auto") {
-            assert('array_key_exists("device", $factor_params) && is_string($factor_params["device"])');
+            assert(array_key_exists("device", $factor_params) && is_string($factor_params["device"]));
             $params["device"] = $factor_params["device"];
         }
 
@@ -165,7 +167,7 @@ class Auth extends Client
 
     public function auth_status($txid)
     {
-        assert('is_string($txid)');
+        assert(is_string($txid));
 
         $method = "GET";
         $endpoint = "/auth/v2/auth_status";

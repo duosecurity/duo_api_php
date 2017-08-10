@@ -18,7 +18,7 @@ class CurlRequester implements Requester
 
     public function options($options)
     {
-        assert('is_array($options)');
+        assert(is_array($options));
 
         /*
          * These are the cURL options we support. The key represents the
@@ -52,10 +52,10 @@ class CurlRequester implements Requester
 
     public function execute($url, $method, $headers, $body = null)
     {
-        assert('is_string($url)');
-        assert('is_string($method)');
-        assert('is_array($headers)');
-        assert('is_string($body) || is_null($body)');
+        assert(is_string($url));
+        assert(is_string($method));
+        assert(is_array($headers));
+        assert(is_string($body) || is_null($body));
 
         $headers = array_map(function ($key, $value) {
             return sprintf("%s: %s", $key, $value);

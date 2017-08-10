@@ -19,7 +19,7 @@ class Accounts extends Client
 
     public function create_account($name)
     {
-        assert('is_string($name)');
+        assert(is_string($name));
 
         $method = "POST";
         $endpoint = "/accounts/v1/account/create";
@@ -32,7 +32,7 @@ class Accounts extends Client
 
     public function delete_account($account_id)
     {
-        assert('is_string($account_id)');
+        assert(is_string($account_id));
 
         $method = "POST";
         $endpoint = "/accounts/v1/account/delete";
