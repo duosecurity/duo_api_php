@@ -318,6 +318,8 @@ class AdminTest extends BaseTest
 
         $this->assertEquals("OK", $result["response"]["stat"]);
         $this->assertTrue($result["success"]);
+    }
+    
     public function testBypassCall()
     {
         $successful_response = [
