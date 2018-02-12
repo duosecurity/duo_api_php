@@ -319,4 +319,33 @@ class AdminTest extends BaseTest
         $this->assertEquals("OK", $result["response"]["stat"]);
         $this->assertTrue($result["success"]);
     }
+    
+    public function testBypassCall()
+    {
+        $successful_response = [
+            'response' => json_encode([
+                'stat' => 'OK',
+                'response' => [
+                    '123456789',
+                    '123456789',
+                    '123456789',
+                    '123456789',
+                    '123456789',
+                    '123456789',
+                    '123456789',
+                    '123456789',
+                    '123456789',
+                    '123456789',
+                ]
+            ]),
+            'success' => true,
+        ];
+
+        $admin_client = self::getMockedClient('Admin', $successful_response, $paged = false);
+
+        $result = $admin_client->user_create_bypass('user_id', 10, 0, 1);
+        $this->assertEquals('OK', $result['response']['stat']);
+        $this->assertTrue($result['success']);
+        $this->assertCount(10, $result['response']['response']);
+    }
 }
