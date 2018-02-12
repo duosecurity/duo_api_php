@@ -343,7 +343,7 @@ class AdminTest extends BaseTest
 
         $admin_client = self::getMockedClient('Admin', $successful_response, $paged = false);
 
-        $result = $admin_client->user_create_bypass('username', 10, 0, 1);
+        $result = $admin_client->user_create_bypass('user_id', 10, 0, 1);
         $this->assertEquals('OK', $result['response']['stat']);
         $this->assertTrue($result['success']);
         $this->assertCount(10, $result['response']['response']);

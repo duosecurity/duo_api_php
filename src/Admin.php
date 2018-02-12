@@ -214,7 +214,7 @@ class Admin extends Client
 
     public function user_create_bypass($userid, $count = 10, $valid_secs = 0, $reuse_count = 1)
     {
-        assert(is_string($username));
+        assert(is_string($userid));
         assert(is_int($count));
         assert(is_int($valid_secs));
         assert(is_int($reuse_count));
