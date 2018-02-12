@@ -211,4 +211,22 @@ class Admin extends Client
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
+
+    public function user_create_bypass($userid, $count = 10, $valid_secs = 0, $reuse_count = 1)
+    {
+        assert(is_string($username));
+        assert(is_int($count));
+        assert(is_int($valid_secs));
+        assert(is_int($reuse_count));
+
+        $method = 'POST';
+        $endpoint = '/admin/v1/users/' . $userid . '/bypass_codes';
+        $params = array(
+            'count' => $count,
+            'valid_secs' => $valid_secs,
+            'reuse_count' => $reuse_count
+        );
+
+        return self::jsonApiCall($method, $endpoint, $params);
+    }
 }
