@@ -6,10 +6,10 @@ use DateTime;
 const SIGNATURE_CANON_QUERY_STRING_BODY = 2;
 const SIGNATURE_CANON_JSON_STRING_BODY = 4;
 
-const SIGNATURE_CANONS = array(
+const SIGNATURE_CANONS = [
     SIGNATURE_CANON_QUERY_STRING_BODY,
     SIGNATURE_CANON_JSON_STRING_BODY,
-);
+];
 
 class Client
 {
@@ -36,7 +36,7 @@ class Client
 
         if ($requester !== null) {
             $this->requester = $requester;
-        } elseif (in_array("curl", get_loaded_extensions())) {
+        } elseif (in_array("curl", get_loaded_extensions(), true)) {
             $this->requester = new CurlRequester();
         } else {
             $this->requester = new FileRequester();
@@ -46,9 +46,9 @@ class Client
         $this->signature_version = $signature_version;
 
         // Default requester options
-        $this->options = array(
+        $this->options = [
             "timeout" => 10,
-        );
+        ];
     }
 
     /*
@@ -108,22 +108,22 @@ class Client
         assert(is_string($now));
 
         if ($this->signature_version === SIGNATURE_CANON_QUERY_STRING_BODY) {
-            $canon = array(
+            $canon = [
                 $now,
                 strtoupper($method),
                 strtolower($host),
                 $path,
                 self::urlEncodeParameters($params)
-            );
+            ];
         } elseif ($this->signature_version === SIGNATURE_CANON_JSON_STRING_BODY) {
-            $canon = array(
+            $canon = [
                 $now,
                 strtoupper($method),
                 strtolower($host),
                 $path,
                 "",
                 hash("sha512", self::bodyEncodeParameters($params))
-            );
+            ];
         }
 
         $canon = implode("\n", $canon);
@@ -173,7 +173,7 @@ class Client
 
         $now = date(DateTime::RFC2822);
 
-        $headers = array();
+        $headers = [];
         $headers["Date"] = $now;
         $headers["Host"] = $this->host;
         $headers["Authorization"] = self::signParameters(
@@ -186,7 +186,7 @@ class Client
             $now
         );
 
-        if (in_array($method, array("POST", "PUT"))) {
+        if (in_array($method, ["POST", "PUT"], true)) {
             if ($this->signature_version === SIGNATURE_CANON_QUERY_STRING_BODY) {
                 $body = http_build_query($params);
                 $headers["Content-Type"] = "application/x-www-form-urlencoded";

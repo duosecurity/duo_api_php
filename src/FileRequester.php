@@ -6,14 +6,14 @@ class FileRequester implements Requester
 
     public function __construct()
     {
-        $this->http_options = array(
-            "http" => array(
+        $this->http_options = [
+            "http" => [
                 /*
                  * We'll handle HTTP errors on our own
                  */
                 "ignore_errors" => true,
-            ),
-            "ssl" => array(
+            ],
+            "ssl" => [
                 /*
                  * Disallow self-signed certificates
                  */
@@ -32,8 +32,8 @@ class FileRequester implements Requester
                  *     openssl ciphers -v 'HIGH:!SSLv2:!SSLv3'
                  */
                 "ciphers" => "HIGH:!SSLv2:!SSLv3",
-            ),
-        );
+            ],
+        ];
     }
 
     public function __destruct()
@@ -123,11 +123,11 @@ class FileRequester implements Requester
              *     return FALSE).
              */
             $result = json_encode(
-                array(
+                [
                     'stat' => 'FAIL',
                     'code' => $errno,
                     'message' => $message,
-                )
+                ]
             );
             $success = false;
         } else {
@@ -135,10 +135,10 @@ class FileRequester implements Requester
             $http_status_code = self::parse_http_response_header($http_response_header);
         }
 
-        return array(
+        return [
             "response" => $result,
             "success" => $success,
             "http_status_code" => $http_status_code
-        );
+        ];
     }
 }

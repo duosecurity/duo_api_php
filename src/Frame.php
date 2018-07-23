@@ -18,12 +18,12 @@ class Frame extends Client
 
         $method = "POST";
         $endpoint = "/frame/init";
-        $params = array(
+        $params = [
             'user' => $username,
             'app_blob' => $app_blob,
             'expire' => $expire,
             'client_version' => $client_version,
-        );
+        ];
 
         if ($enroll_only) {
             $params['enroll_only'] = $enroll_only;
@@ -38,9 +38,9 @@ class Frame extends Client
 
         $method = "POST";
         $endpoint = "/frame/auth_response";
-        $params = array(
+        $params = [
             'response_txid' => $response_txid,
-        );
+        ];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }

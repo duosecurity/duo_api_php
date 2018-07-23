@@ -12,10 +12,10 @@ class Admin extends Client
      * Values a user/group's status can be set to. Note that this is what
      * they can be SET to, there are additional values that can be retrieved.
      */
-    private static $SET_STATUS = array("active", "bypass", "disabled");
+    private static $SET_STATUS = ["active", "bypass", "disabled"];
     private function is_status($status)
     {
-        return is_string($status) && in_array($status, self::$SET_STATUS);
+        return is_string($status) && in_array($status, self::$SET_STATUS, true);
     }
 
     /*
@@ -30,7 +30,7 @@ class Admin extends Client
 
         $method = "GET";
         $endpoint = "/admin/v1/users";
-        $params = array();
+        $params = [];
 
         if ($username && !$userid) {
             $params["username"] = $username;
@@ -60,9 +60,9 @@ class Admin extends Client
 
         $method = "POST";
         $endpoint = "/admin/v1/users";
-        $params = array(
+        $params = [
             "username" => $username,
-        );
+        ];
 
         if ($realname) {
             $params["realname"] = $realname;
@@ -99,7 +99,7 @@ class Admin extends Client
 
         $method = "POST";
         $endpoint = "/admin/v1/phones";
-        $params = array();
+        $params = [];
 
         if ($number) {
             $params["number"] = $number;
@@ -133,9 +133,9 @@ class Admin extends Client
 
         $method = "POST";
         $endpoint = "/admin/v1/users/" . $userid . "/phones";
-        $params = array(
+        $params = [
             "phone_id" => $phoneid,
-        );
+        ];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
@@ -147,9 +147,9 @@ class Admin extends Client
 
         $method = "POST";
         $endpoint = "/admin/v1/users/" . $userid . "/tokens";
-        $params = array(
+        $params = [
             "token_id" => $tokenid,
-        );
+        ];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
@@ -161,9 +161,9 @@ class Admin extends Client
 
         $method = "POST";
         $endpoint = "/admin/v1/users/" . $userid . "/groups";
-        $params = array(
+        $params = [
             "group_id" => $groupid,
-        );
+        ];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
@@ -172,7 +172,7 @@ class Admin extends Client
     {
         $method = "GET";
         $endpoint = "/admin/v1/groups";
-        $params = array();
+        $params = [];
 
         if ($groupid) {
             $endpoint .= ("/" . $groupid);
@@ -189,7 +189,7 @@ class Admin extends Client
     {
         $method = "GET";
         $endpoint = "/admin/v1/integrations";
-        $params = array();
+        $params = [];
 
         if ($ikey) {
             $endpoint .= ("/" . $ikey);
@@ -207,7 +207,7 @@ class Admin extends Client
 
         $method = "GET";
         $endpoint = "/admin/v1/info/summary";
-        $params = array();
+        $params = [];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }

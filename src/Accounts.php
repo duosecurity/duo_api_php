@@ -12,7 +12,7 @@ class Accounts extends Client
     {
         $method = "POST";
         $endpoint = "/accounts/v1/account/list";
-        $params = array();
+        $params = [];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
@@ -23,9 +23,9 @@ class Accounts extends Client
 
         $method = "POST";
         $endpoint = "/accounts/v1/account/create";
-        $params = array(
+        $params = [
             "name" => $name,
-        );
+        ];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
@@ -36,9 +36,9 @@ class Accounts extends Client
 
         $method = "POST";
         $endpoint = "/accounts/v1/account/delete";
-        $params = array(
+        $params = [
             "account_id" => $account_id,
-        );
+        ];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }

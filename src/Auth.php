@@ -12,7 +12,7 @@ class Auth extends Client
     {
         $method = "GET";
         $endpoint = "/auth/v2/ping";
-        $params = array();
+        $params = [];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
@@ -21,7 +21,7 @@ class Auth extends Client
     {
         $method = "GET";
         $endpoint = "/auth/v2/check";
-        $params = array();
+        $params = [];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
@@ -30,7 +30,7 @@ class Auth extends Client
     {
         $method = "GET";
         $endpoint = "/auth/v2/logo";
-        $params = array();
+        $params = [];
 
         return self::apiCall($method, $endpoint, $params);
     }
@@ -42,7 +42,7 @@ class Auth extends Client
 
         $method = "POST";
         $endpoint = "/auth/v2/enroll";
-        $params = array();
+        $params = [];
 
         if ($username) {
             $params["username"] = $username;
@@ -61,10 +61,10 @@ class Auth extends Client
 
         $method = "POST";
         $endpoint = "/auth/v2/enroll_status";
-        $params = array(
+        $params = [
             "user_id" => $user_id,
             "activation_code" => $activation_code,
-        );
+        ];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
@@ -82,7 +82,7 @@ class Auth extends Client
 
         $method = "POST";
         $endpoint = "/auth/v2/preauth";
-        $params = array();
+        $params = [];
 
         if ($username) {
             $params["username"] = $user_identifier;
@@ -110,7 +110,7 @@ class Auth extends Client
         assert(is_string($user_identifier));
         assert(
             is_string($factor) &&
-            in_array($factor, array("auto", "push", "passcode", "sms", "phone"))
+            in_array($factor, ["auto", "push", "passcode", "sms", "phone"], true)
         );
         assert(is_array($factor_params));
         assert(is_string($ipaddr) || is_null($ipaddr));
@@ -119,7 +119,7 @@ class Auth extends Client
 
         $method = "POST";
         $endpoint = "/auth/v2/auth";
-        $params = array();
+        $params = [];
 
         if ($username) {
             $params["username"] = $user_identifier;
@@ -171,9 +171,9 @@ class Auth extends Client
 
         $method = "GET";
         $endpoint = "/auth/v2/auth_status";
-        $params = array(
+        $params = [
             "txid" => $txid,
-        );
+        ];
 
         return self::jsonApiCall($method, $endpoint, $params);
     }

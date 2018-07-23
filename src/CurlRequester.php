@@ -25,13 +25,13 @@ class CurlRequester implements Requester
          * cURL option, and the value represents the key in the options
          * argument.
          */
-        $possible_options = array(
+        $possible_options = [
             CURLOPT_TIMEOUT => "timeout",
             CURLOPT_CAINFO => "ca",
             CURLOPT_USERAGENT => "user_agent",
             CURLOPT_PROXY => "proxy_url",
             CURLOPT_PROXYPORT => "proxy_port",
-        );
+        ];
 
         $curl_options = array_filter($possible_options, function ($option) use ($options) {
             return array_key_exists($option, $options);
@@ -93,21 +93,21 @@ class CurlRequester implements Requester
              *     return FALSE).
              */
             $result = json_encode(
-                array(
+                [
                     'stat' => 'FAIL',
                     'code' => $errno,
                     'message' => $error,
-                )
+                ]
             );
             $success = false;
         } else {
             $http_status_code = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
         }
 
-        return array(
+        return [
             "response" => $result,
             "success" => $success,
             "http_status_code" => $http_status_code
-        );
+        ];
     }
 }
