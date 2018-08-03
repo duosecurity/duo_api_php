@@ -42,4 +42,28 @@ class Accounts extends Client
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
+    
+    public function billing_edition($account_id)
+    {
+        assert(is_string($account_id));
+        
+        $method = "GET";
+        $endpoint = "/admin/v1/billing/edition";
+        $params = [
+            "account_id" => $account_id,
+        ];
+        return self::jsonApiCall($method, $endpoint, $params);
+    }
+    
+    public function telephony_credits($account_id)
+    {
+        assert(is_string($account_id));
+        
+        $method = "GET";
+        $endpoint = "/admin/v1/billing/telephony_credits";
+        $params = [
+            "account_id" => $account_id,
+        ];
+        return self::jsonApiCall($method, $endpoint, $params);
+    }
 }
