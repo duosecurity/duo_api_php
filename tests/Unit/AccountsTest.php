@@ -24,7 +24,7 @@ class AccountsTest extends BaseTest
 
         $this->assertEquals($result["response"]["stat"], "FAIL");
     }
-   
+    
     public function testDeleteAccount()
     {
         $unsuccessful_response = self::getUnsuccessfulResponse();
