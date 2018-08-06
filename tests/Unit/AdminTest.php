@@ -296,17 +296,16 @@ class AdminTest extends BaseTest
         $this->assertEquals("OK", $result["response"]["stat"]);
         $this->assertTrue($result["success"]);
     }
-
-    public function testSummaryCall()
+    
+    public function testTelephonyCreditsUsedCall()
     {
         $successful_response = [
             "response" => json_encode([
                 "stat" => "OK",
                 "response" => [
-                  "admin_count" => 3,
-                  "integration_count" => 9,
-                  "telephony_credits_remaining" => 960,
-                  "user_count" => 8
+                  "maxtime" => 1533306651,
+                  "mintime" => 1530714651,
+                  "telephony_credits_used" => 1,
                 ]
             ]),
             "success" => true,
@@ -314,7 +313,61 @@ class AdminTest extends BaseTest
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
 
-        $result = $admin_client->summary();
+        $result = $admin_client->telephony_credits_used();
+
+        $this->assertEquals("OK", $result["response"]["stat"]);
+        $this->assertTrue($result["success"]);
+    }
+    
+    public function testAuthenticationAttemptsCall()
+    {
+        $successful_response = [
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => [
+                  "authentication_attempts" => json_encode([
+                    "ERROR" => 0,
+                    "FAILURE" => 0,
+                    "FRAUD" => 0,
+                    "SUCCESS" => 3
+                  ]),
+                  "maxtime" => 1533306651,
+                  "mintime" => 1530714651,
+                ]
+            ]),
+            "success" => true,
+        ];
+
+        $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
+
+        $result = $admin_client->authentication_attempts();
+
+        $this->assertEquals("OK", $result["response"]["stat"]);
+        $this->assertTrue($result["success"]);
+    }
+    
+    public function testUserAuthenticationAttemptsCall()
+    {
+        $successful_response = [
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => [
+                  "user_authentication_attempts" => json_encode([
+                    "ERROR" => 0,
+                    "FAILURE" => 0,
+                    "FRAUD" => 0,
+                    "SUCCESS" => 1
+                  ]),
+                  "maxtime" => 1533306651,
+                  "mintime" => 1530714651,
+                ]
+            ]),
+            "success" => true,
+        ];
+
+        $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
+
+        $result = $admin_client->user_authentication_attempts();
 
         $this->assertEquals("OK", $result["response"]["stat"]);
         $this->assertTrue($result["success"]);
