@@ -42,7 +42,7 @@ class AccountsTest extends BaseTest
 
         $accounts_client = self::getMockedClient("Accounts", $unsuccessful_response, $paged = false);
 
-        $result = $accounts_client->delete_account("userid");
+        $result = $accounts_client->billing_edition("userid");
 
         $this->assertEquals($result["response"]["stat"], "FAIL");
     }
