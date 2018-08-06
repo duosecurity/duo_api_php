@@ -297,6 +297,26 @@ class AdminTest extends BaseTest
         $this->assertTrue($result["success"]);
     }
     
+    public function testSummaryCall()
+    {
+        $successful_response = [
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => [
+                  "admin_count" => 3,
+                  "integration_count" => 9,
+                  "telephony_credits_remaining" => 960,
+                  "user_count" => 8
+                ]
+            ]),
+            "success" => true,
+        ];
+        $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
+        $result = $admin_client->summary();
+        $this->assertEquals("OK", $result["response"]["stat"]);
+        $this->assertTrue($result["success"]);
+    }
+    
     public function testTelephonyCreditsUsedCall()
     {
         $successful_response = [
