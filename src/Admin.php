@@ -191,7 +191,7 @@ class Admin extends Client
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function integrations($ikey = null)
+    public function integrations($ikey = null, $limit = null, $offset = 0)
     {
         $method = "GET";
         $endpoint = "/admin/v1/integrations";
@@ -201,9 +201,12 @@ class Admin extends Client
             $endpoint .= ("/" . $ikey);
         }
 
-        if ($this->paging) {
+        if ($limit == null) {
             return self::jsonPagingApiCall($method, $endpoint, $params);
         }
+
+        $params['limit'] = $limit;
+        $params['offset'] = $offset;
 
         return self::jsonApiCall($method, $endpoint, $params);
     }

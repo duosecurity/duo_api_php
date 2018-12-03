@@ -60,6 +60,58 @@ class AdminTest extends BaseTest
         $this->assertEquals($expected_response, $result["response"]);
     }
 
+    public function testIntegrationsCallWithoutPagingParams()
+    {
+        $successful_response = [[
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => ['integration1', 'integration2'],
+                "metadata" => [
+                    "next_offset" => 2
+                ]
+            ]),
+            "success" => true,
+        ],[
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => ['integration3', 'integration4'],
+                "metadata" => [
+                ]
+            ]),
+            "success" => true,
+        ]];
+
+        $admin_client = self::getMockedClient("Admin", $successful_response, $paged = true);
+
+        $result = $admin_client->integrations();
+
+        $this->assertEquals("OK", $result["response"]["stat"]);
+        $this->assertTrue($result["success"]);
+        $this->assertEquals($result['response']['response'], ['integration1', 'integration2', 'integration3', 'integration4']);
+    }
+
+    public function testIntegrationsCallWithPagingParams()
+    {
+        $successful_response = [[
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => ['integration1', 'integration2'],
+                "metadata" => [
+                    "next_offset" => 2
+                ]
+            ]),
+            "success" => true,
+        ]];
+
+        $admin_client = self::getMockedClient("Admin", $successful_response, $paged = true);
+
+        $result = $admin_client->integrations(null, $limit = 2, $offset = 2);
+
+        $this->assertEquals("OK", $result["response"]["stat"]);
+        $this->assertTrue($result["success"]);
+        $this->assertEquals($result['response']['response'], ['integration1', 'integration2']);
+    }
+
     public function testUsersCall()
     {
         $successful_response = [
