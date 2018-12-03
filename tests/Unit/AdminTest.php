@@ -112,6 +112,57 @@ class AdminTest extends BaseTest
         $this->assertTrue($result["success"]);
     }
 
+    public function testUsersCallWithoutPagingParams()
+    {
+        $successful_response = [[
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => ['user1', 'user2'],
+                "metadata" => [
+                  "next_offset" => 10
+                ]
+            ]),
+            "success" => true,
+        ],[
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => ['user3', 'user4'],
+                "metadata" => [
+                ]
+            ]),
+            "success" => true,
+        ]];
+
+        $admin_client = self::getMockedClient("Admin", $successful_response, $paged = true);
+
+        $result = $admin_client->users();
+
+        $this->assertEquals("OK", $result["response"]["stat"]);
+        $this->assertTrue($result["success"]);
+        $this->assertEquals($result['response']['response'], ['user1', 'user2', 'user3', 'user4']);
+    }
+
+    public function testUsersCallWithPagingParams()
+    {
+        $successful_response = [[
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => ['user1', 'user2'],
+                "metadata" => [
+                ]
+            ]),
+            "success" => true,
+        ]];
+
+        $admin_client = self::getMockedClient("Admin", $successful_response, $paged = true);
+
+        $result = $admin_client->users(null, false, $limit = 2, $offset = 0);
+
+        $this->assertEquals("OK", $result["response"]["stat"]);
+        $this->assertTrue($result["success"]);
+        $this->assertEquals($result['response']['response'], ['user1', 'user2']);
+    }
+
     public function testCreateUserCall()
     {
         $successful_response = [

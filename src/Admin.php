@@ -24,7 +24,7 @@ class Admin extends Client
      * https://www.duosecurity.com/docs/adminapi.
      */
 
-    public function users($username = null, $userid = false)
+    public function users($username = null, $userid = false, $limit = null, $offset = 0)
     {
         assert(is_string($username) || is_null($username));
 
@@ -38,9 +38,12 @@ class Admin extends Client
             $endpoint .= ("/" . $username);
         }
 
-        if ($this->paging) {
+        if ($limit == null) {
             return self::jsonPagingApiCall($method, $endpoint, $params);
         }
+
+        $params["limit"] = $limit;
+        $params["offset"] = $offset;
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
