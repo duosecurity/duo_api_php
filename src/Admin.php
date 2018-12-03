@@ -171,7 +171,7 @@ class Admin extends Client
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function groups($groupid = null)
+    public function groups($groupid = null, $limit = null, $offset = 0)
     {
         $method = "GET";
         $endpoint = "/admin/v1/groups";
@@ -181,9 +181,12 @@ class Admin extends Client
             $endpoint .= ("/" . $groupid);
         }
 
-        if ($this->paging) {
+        if ($limit == null) {
             return self::jsonPagingApiCall($method, $endpoint, $params);
         }
+
+        $params['limit'] = $limit;
+        $params['offset'] = $offset;
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
