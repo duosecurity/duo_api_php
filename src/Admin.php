@@ -24,7 +24,7 @@ class Admin extends Client
      * https://www.duosecurity.com/docs/adminapi.
      */
 
-    public function users($username = null, $userid = false, $limit = null, $offset = 0)
+    public function users($username = null, $userid = false)
     {
         assert(is_string($username) || is_null($username));
 
@@ -38,12 +38,9 @@ class Admin extends Client
             $endpoint .= ("/" . $username);
         }
 
-        if ($limit == null) {
+        if ($username == null) {
             return self::jsonPagingApiCall($method, $endpoint, $params);
         }
-
-        $params["limit"] = $limit;
-        $params["offset"] = $offset;
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
@@ -171,7 +168,7 @@ class Admin extends Client
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function groups($groupid = null, $limit = null, $offset = 0)
+    public function groups($groupid = null)
     {
         $method = "GET";
         $endpoint = "/admin/v1/groups";
@@ -181,17 +178,14 @@ class Admin extends Client
             $endpoint .= ("/" . $groupid);
         }
 
-        if ($limit == null) {
+        if ($groupid == null) {
             return self::jsonPagingApiCall($method, $endpoint, $params);
         }
-
-        $params['limit'] = $limit;
-        $params['offset'] = $offset;
 
         return self::jsonApiCall($method, $endpoint, $params);
     }
 
-    public function integrations($ikey = null, $limit = null, $offset = 0)
+    public function integrations($ikey = null)
     {
         $method = "GET";
         $endpoint = "/admin/v1/integrations";
@@ -201,12 +195,9 @@ class Admin extends Client
             $endpoint .= ("/" . $ikey);
         }
 
-        if ($limit == null) {
+        if ($ikey == null) {
             return self::jsonPagingApiCall($method, $endpoint, $params);
         }
-
-        $params['limit'] = $limit;
-        $params['offset'] = $offset;
 
         return self::jsonApiCall($method, $endpoint, $params);
     }

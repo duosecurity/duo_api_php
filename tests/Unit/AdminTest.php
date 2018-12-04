@@ -60,7 +60,7 @@ class AdminTest extends BaseTest
         $this->assertEquals($expected_response, $result["response"]);
     }
 
-    public function testIntegrationsCallWithoutPagingParams()
+    public function testPagedIntegrationsCall()
     {
         $successful_response = [[
             "response" => json_encode([
@@ -88,28 +88,6 @@ class AdminTest extends BaseTest
         $this->assertEquals("OK", $result["response"]["stat"]);
         $this->assertTrue($result["success"]);
         $this->assertEquals($result['response']['response'], ['integration1', 'integration2', 'integration3', 'integration4']);
-    }
-
-    public function testIntegrationsCallWithPagingParams()
-    {
-        $successful_response = [[
-            "response" => json_encode([
-                "stat" => "OK",
-                "response" => ['integration1', 'integration2'],
-                "metadata" => [
-                    "next_offset" => 2
-                ]
-            ]),
-            "success" => true,
-        ]];
-
-        $admin_client = self::getMockedClient("Admin", $successful_response, $paged = true);
-
-        $result = $admin_client->integrations(null, $limit = 2, $offset = 2);
-
-        $this->assertEquals("OK", $result["response"]["stat"]);
-        $this->assertTrue($result["success"]);
-        $this->assertEquals($result['response']['response'], ['integration1', 'integration2']);
     }
 
     public function testUsersCall()
@@ -164,7 +142,7 @@ class AdminTest extends BaseTest
         $this->assertTrue($result["success"]);
     }
 
-    public function testUsersCallWithoutPagingParams()
+    public function testPagesUsersCall()
     {
         $successful_response = [[
             "response" => json_encode([
@@ -192,27 +170,6 @@ class AdminTest extends BaseTest
         $this->assertEquals("OK", $result["response"]["stat"]);
         $this->assertTrue($result["success"]);
         $this->assertEquals($result['response']['response'], ['user1', 'user2', 'user3', 'user4']);
-    }
-
-    public function testUsersCallWithPagingParams()
-    {
-        $successful_response = [[
-            "response" => json_encode([
-                "stat" => "OK",
-                "response" => ['user1', 'user2'],
-                "metadata" => [
-                ]
-            ]),
-            "success" => true,
-        ]];
-
-        $admin_client = self::getMockedClient("Admin", $successful_response, $paged = true);
-
-        $result = $admin_client->users(null, false, $limit = 2, $offset = 0);
-
-        $this->assertEquals("OK", $result["response"]["stat"]);
-        $this->assertTrue($result["success"]);
-        $this->assertEquals($result['response']['response'], ['user1', 'user2']);
     }
 
     public function testCreateUserCall()
@@ -400,7 +357,7 @@ class AdminTest extends BaseTest
         $this->assertTrue($result["success"]);
     }
 
-    public function testGroupsCallWithoutPagingParams()
+    public function testPagedGroupsCall()
     {
         $successful_response = [[
             "response" => json_encode([
@@ -428,28 +385,6 @@ class AdminTest extends BaseTest
         $this->assertEquals("OK", $result["response"]["stat"]);
         $this->assertTrue($result["success"]);
         $this->assertEquals(['group1', 'group2', 'group3', 'group4'], $result['response']['response']);
-    }
-
-    public function testGroupsCallWithPagingParams()
-    {
-        $successful_response = [[
-            "response" => json_encode([
-                "stat" => "OK",
-                "response" => ['group1', 'group2'],
-                "metadata" => [
-                    "next_offset" => 4
-                ]
-            ]),
-            "success" => true,
-        ]];
-
-        $admin_client = self::getMockedClient("Admin", $successful_response, $paged = true);
-
-        $result = $admin_client->groups(null, $limit = 2, $offset = 2);
-
-        $this->assertEquals("OK", $result["response"]["stat"]);
-        $this->assertTrue($result["success"]);
-        $this->assertEquals(['group1', 'group2'], $result['response']['response']);
     }
 
     public function testSummaryCall()
