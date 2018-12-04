@@ -38,7 +38,7 @@ class Admin extends Client
             $endpoint .= ("/" . $username);
         }
 
-        if ($username == null) {
+        if (is_null($username)) {
             return self::jsonPagingApiCall($method, $endpoint, $params);
         }
 
@@ -178,7 +178,7 @@ class Admin extends Client
             $endpoint .= ("/" . $groupid);
         }
 
-        if ($groupid == null) {
+        if (is_null($groupid)) {
             return self::jsonPagingApiCall($method, $endpoint, $params);
         }
 
@@ -195,7 +195,7 @@ class Admin extends Client
             $endpoint .= ("/" . $ikey);
         }
 
-        if ($ikey == null) {
+        if (is_null($ikey)) {
             return self::jsonPagingApiCall($method, $endpoint, $params);
         }
 
