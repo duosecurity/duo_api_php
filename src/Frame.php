@@ -17,7 +17,7 @@ class Frame extends Client
         assert(is_bool($enroll_only));
 
         $method = "POST";
-        $endpoint = "/frame/init";
+        $endpoint = "/frame/api/v3/init";
         $params = [
             'user' => $username,
             'app_blob' => $app_blob,
@@ -37,7 +37,7 @@ class Frame extends Client
         assert(is_string($response_txid));
 
         $method = "POST";
-        $endpoint = "/frame/auth_response";
+        $endpoint = "/frame/api/v3/auth_response";
         $params = [
             'response_txid' => $response_txid,
         ];
