@@ -24,7 +24,7 @@ class AccountsTest extends BaseTest
 
         $this->assertEquals($result["response"]["stat"], "FAIL");
     }
-
+    
     public function testDeleteAccount()
     {
         $unsuccessful_response = self::getUnsuccessfulResponse();
@@ -32,6 +32,28 @@ class AccountsTest extends BaseTest
         $accounts_client = self::getMockedClient("Accounts", $unsuccessful_response, $paged = false);
 
         $result = $accounts_client->delete_account("userid");
+        
+        $this->assertEquals($result["response"]["stat"], "FAIL");
+    }
+    
+    public function testBillingEdition()
+    {
+        $unsuccessful_response = self::getUnsuccessfulResponse();
+
+        $accounts_client = self::getMockedClient("Accounts", $unsuccessful_response, $paged = false);
+
+        $result = $accounts_client->billing_edition("userid");
+
+        $this->assertEquals($result["response"]["stat"], "FAIL");
+    }
+    
+    public function testTelephonyCredits()
+    {
+        $unsuccessful_response = self::getUnsuccessfulResponse();
+
+        $accounts_client = self::getMockedClient("Accounts", $unsuccessful_response, $paged = false);
+
+        $result = $accounts_client->telephony_credits("userid");
 
         $this->assertEquals($result["response"]["stat"], "FAIL");
     }

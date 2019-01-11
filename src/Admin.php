@@ -204,11 +204,34 @@ class Admin extends Client
 
     public function summary()
     {
-
         $method = "GET";
         $endpoint = "/admin/v1/info/summary";
         $params = [];
 
+        return self::jsonApiCall($method, $endpoint, $params);
+    }
+    
+    public function telephony_credits_used()
+    {
+        $method = "GET";
+        $endpoint = "/admin/v1/info/telephony_credits_used";
+        $params = [];
+        return self::jsonApiCall($method, $endpoint, $params);
+    }
+    
+    public function authentication_attempts()
+    {
+        $method = "GET";
+        $endpoint = "/admin/v1/info/authentication_attempts";
+        $params = [];
+        return self::jsonApiCall($method, $endpoint, $params);
+    }
+    
+    public function user_authentication_attempts()
+    {
+        $method = "GET";
+        $endpoint = "/admin/v1/info/user_authentication_attempts";
+        $params = [];
         return self::jsonApiCall($method, $endpoint, $params);
     }
 }
