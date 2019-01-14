@@ -8,6 +8,10 @@
 
 **Accounts** - https://www.duosecurity.com/docs/accountsapi
 
+# Development
+
+This repository is a read-only mirror of the official plugin repository, so we cannot accept pull requests via GitHub. Please use a GitHub issue for any requests or bugs.
+
 # Installing
 
 Development:
