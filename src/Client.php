@@ -11,6 +11,13 @@ const SIGNATURE_CANONS = [
     SIGNATURE_CANON_JSON_STRING_BODY,
 ];
 
+
+const INITIAL_BACKOFF_SECONDS = 1;
+const MAX_BACKOFF_SECONDS = 32;
+const BACKOFF_FACTOR = 2;
+const RATE_LIMIT_HTTP_CODE = 429;
+
+
 class Client
 {
     const DEFAULT_PAGING_LIMIT = '100';
@@ -49,6 +56,8 @@ class Client
         $this->options = [
             "timeout" => 10,
         ];
+
+        $this->sleep_service = new USleepService();
     }
 
     /*
@@ -160,9 +169,17 @@ class Client
         $url = "https://" . $this->host . $uri;
 
         $this->requester->options($this->options);
-        $result = $this->requester->execute($url, $method, $headers, $body);
 
-        return $result;
+        $backoff_seconds = INITIAL_BACKOFF_SECONDS;
+        while (true) {
+            $result = $this->requester->execute($url, $method, $headers, $body);
+            if ($result["http_status_code"] != RATE_LIMIT_HTTP_CODE || $backoff_seconds > MAX_BACKOFF_SECONDS) {
+                return $result;
+            }
+
+            $this->sleep_service->sleep($backoff_seconds + (rand(0, 1000) / 1000.0));
+            $backoff_seconds *= BACKOFF_FACTOR;
+        }
     }
 
     public function apiCall($method, $path, $params)

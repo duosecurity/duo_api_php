@@ -29,6 +29,7 @@ class AdminTest extends BaseTest
                 ],
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         return $successful_integrations_response;
@@ -71,6 +72,7 @@ class AdminTest extends BaseTest
                 ]
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ],[
             "response" => json_encode([
                 "stat" => "OK",
@@ -79,6 +81,7 @@ class AdminTest extends BaseTest
                 ]
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ]];
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = true);
@@ -132,6 +135,7 @@ class AdminTest extends BaseTest
                 ]]
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
@@ -153,6 +157,7 @@ class AdminTest extends BaseTest
                 ]
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ],[
             "response" => json_encode([
                 "stat" => "OK",
@@ -161,6 +166,7 @@ class AdminTest extends BaseTest
                 ]
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ]];
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = true);
@@ -213,6 +219,7 @@ class AdminTest extends BaseTest
                 ],
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
@@ -256,6 +263,7 @@ class AdminTest extends BaseTest
                 ],
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
@@ -274,6 +282,7 @@ class AdminTest extends BaseTest
                 "response" => "",
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
@@ -292,6 +301,7 @@ class AdminTest extends BaseTest
                 "response" => "",
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
@@ -310,6 +320,7 @@ class AdminTest extends BaseTest
                 "response" => "",
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
@@ -347,6 +358,7 @@ class AdminTest extends BaseTest
                 ]],
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
@@ -368,6 +380,7 @@ class AdminTest extends BaseTest
                 ]
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ],[
             "response" => json_encode([
                 "stat" => "OK",
@@ -376,6 +389,7 @@ class AdminTest extends BaseTest
                 ]
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ]];
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = true);
@@ -400,6 +414,7 @@ class AdminTest extends BaseTest
                 ]
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $admin_client = self::getMockedClient("Admin", $successful_response, $paged = false);
