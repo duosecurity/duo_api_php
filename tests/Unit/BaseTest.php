@@ -16,6 +16,14 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         };
         $this->mocked_curl_requester->method('options')
                                     ->will($this->returnCallback($nop));
+
+        // Map out the first 100 random numbers that will be called during tests
+        srand(1);
+        $this->random_numbers = [];
+        foreach (range(0, 100) as $_) {
+            array_push($this->random_numbers, rand(0, 1000));
+        }
+        srand(1);
     }
 
     protected function getMockedClient($client, $will_return = null, $paged = false)
@@ -31,12 +39,16 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         }
 
         $class = new \ReflectionClass(sprintf("\\DuoAPI\\%s", $client));
-        return $class->newInstanceArgs([
+        $client = $class->newInstanceArgs([
             "IKEYIKEYIKEYIKEYIKEY",
             "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
             "api-duo.example.com",
             $this->mocked_curl_requester
         ]);
+
+        $this->mock_sleep_svc = new MockSleepService();
+        $client->sleep_service = $this->mock_sleep_svc;
+        return $client;
     }
 
     protected static function makeUnicode($s)
@@ -54,8 +66,18 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
                 "message_detail" => "username"
             ]),
             "success" => true,
+            "http_status_code" => 400,
         ];
 
         return $unsuccessful_preauth_response;
+    }
+}
+
+class MockSleepService implements \DuoAPI\SleepService
+{
+    public $sleep_calls = [];
+    public function sleep($secs)
+    {
+        array_push($this->sleep_calls, $secs);
     }
 }

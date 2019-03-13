@@ -13,6 +13,7 @@ class FrameTest extends BaseTest
                 ],
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         return $successful_init_response;
@@ -30,6 +31,7 @@ class FrameTest extends BaseTest
                 ],
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         return $successful_init_response;

@@ -33,6 +33,7 @@ class AuthTest extends BaseTest
                 ]
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         return $successful_preauth_response;
@@ -48,6 +49,7 @@ class AuthTest extends BaseTest
                 ],
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $auth_client = self::getMockedClient("Auth", $successful_ping_response, $paged = false);
@@ -68,6 +70,7 @@ class AuthTest extends BaseTest
                 ],
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $auth_client = self::getMockedClient("Auth", $successful_check_response, $paged = false);
@@ -92,6 +95,7 @@ class AuthTest extends BaseTest
                 ],
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $auth_client = self::getMockedClient("Auth", $successful_enroll_response, $paged = false);
@@ -109,6 +113,7 @@ class AuthTest extends BaseTest
                 "response" => "success",
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $auth_client = self::getMockedClient("Auth", $successful_enroll_status_response, $paged = false);
@@ -170,6 +175,7 @@ class AuthTest extends BaseTest
                 ],
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $auth_client = self::getMockedClient("Auth", $successful_auth_response, $paged = false);
@@ -192,6 +198,7 @@ class AuthTest extends BaseTest
                 ],
             ]),
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $auth_client = self::getMockedClient("Auth", $successful_auth_status_response, $paged = false);
@@ -260,6 +267,7 @@ class AuthTest extends BaseTest
         $non_json_response = [
             "response" => "NON JSON STRING",
             "success" => true,
+            "http_status_code" => 200,
         ];
 
         $auth_client = self::getMockedClient("Auth", $non_json_response, $paged = false);

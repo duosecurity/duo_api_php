@@ -266,6 +266,7 @@ class ClientTest extends BaseTest
                     ],
                     "response" => ["resp1"],
                 ]),
+                "http_status_code" => 200,
             ],
             [
                 "success" => true,
@@ -277,6 +278,7 @@ class ClientTest extends BaseTest
                     ],
                     "response" => ["resp2"],
                 ]),
+                "http_status_code" => 200,
             ],
         ];
 
@@ -294,6 +296,7 @@ class ClientTest extends BaseTest
             "success" => false,
             "response" => json_encode([
             ]),
+            "http_status_code" => 500,
         ];
         $response = [
             $network_failure,
@@ -307,6 +310,7 @@ class ClientTest extends BaseTest
                     ],
                     "response" => ["resp2"],
                 ]),
+                "http_status_code" => 200,
             ],
         ];
 
@@ -327,6 +331,7 @@ class ClientTest extends BaseTest
                 "stat" => "FAIL",
                 "response" => [],
             ]),
+            "http_status_code" => 200,
         ];
         $response = [
             $api_failure,
@@ -340,6 +345,7 @@ class ClientTest extends BaseTest
                     ],
                     "response" => ["resp2"],
                 ]),
+                "http_status_code" => 200,
             ],
         ];
 
@@ -350,5 +356,53 @@ class ClientTest extends BaseTest
         $expected["response"] = json_decode($expected["response"], true);
 
         $this->assertEquals($expected, $response);
+    }
+
+    public function testRateLimitedOnce()
+    {
+        $rate_limited_resp = [
+            "success" => true,
+            "response" => "Rate Limited",
+            "http_status_code" => 429,
+        ];
+        $success_resp =             [
+            "success" => true,
+            "response" => "not rate limited",
+            "http_status_code" => 200,
+        ];
+
+        $response = [$rate_limited_resp, $success_resp];
+
+        $client = self::getMockedClient("Client", $response, $paged = true);
+        $response = $client->apiCall("GET", "/foo/bar", []);
+
+        $this->assertEquals($success_resp, $response);
+        $this->assertEquals([
+            1 + ($this->random_numbers[0] / 1000),
+        ], ($this->mock_sleep_svc->sleep_calls));
+    }
+
+    public function testRateLimitedCompletely()
+    {
+        $rate_limited_resp = [
+            "success" => true,
+            "response" => "Rate Limited",
+            "http_status_code" => 429,
+        ];
+
+        $response = array_fill(0, 7, $rate_limited_resp);
+
+        $client = self::getMockedClient("Client", $response, $paged = true);
+        $response = $client->apiCall("GET", "/foo/bar", []);
+
+        $this->assertEquals($rate_limited_resp, $response);
+        $this->assertEquals([
+            1 + ($this->random_numbers[0] / 1000),
+            2 + ($this->random_numbers[1] / 1000),
+            4 + ($this->random_numbers[2] / 1000),
+            8 + ($this->random_numbers[3] / 1000),
+            16 + ($this->random_numbers[4] / 1000),
+            32 + ($this->random_numbers[5] / 1000),
+        ], ($this->mock_sleep_svc->sleep_calls));
     }
 }
