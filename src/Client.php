@@ -3,15 +3,6 @@ namespace DuoAPI;
 
 use DateTime;
 
-const SIGNATURE_CANON_QUERY_STRING_BODY = 2;
-const SIGNATURE_CANON_JSON_STRING_BODY = 4;
-
-const SIGNATURE_CANONS = [
-    SIGNATURE_CANON_QUERY_STRING_BODY,
-    SIGNATURE_CANON_JSON_STRING_BODY,
-];
-
-
 const INITIAL_BACKOFF_SECONDS = 1;
 const MAX_BACKOFF_SECONDS = 32;
 const BACKOFF_FACTOR = 2;
@@ -27,15 +18,13 @@ class Client
         $skey,
         $host,
         $requester = null,
-        $paging = true,
-        $signature_version = SIGNATURE_CANON_QUERY_STRING_BODY
+        $paging = true
     ) {
         assert(is_string($ikey));
         assert(is_string($skey));
         assert(is_string($host));
         assert(is_null($requester) || is_subclass_of($requester, "DuoAPI\\Requester"));
         assert(is_bool($paging));
-        assert(is_int($signature_version) && in_array($signature_version, SIGNATURE_CANONS, true));
 
         $this->ikey = $ikey;
         $this->skey = $skey;
@@ -50,7 +39,6 @@ class Client
         }
 
         $this->paging = $paging;
-        $this->signature_version = $signature_version;
 
         // Default requester options
         $this->options = [
@@ -86,26 +74,20 @@ class Client
         assert(is_string($now));
 
         $canon = self::canonicalize($method, $host, $path, $params, $now);
-        
-        if ($this->signature_version === SIGNATURE_CANON_QUERY_STRING_BODY) {
-            $algo = "sha1";
-        } elseif ($this->signature_version === SIGNATURE_CANON_JSON_STRING_BODY) {
-            $algo = "sha512";
-        }
 
-        $signature = self::sign($canon, $skey, $algo);
+        $signature = self::sign($canon, $skey);
         $auth = sprintf("%s:%s", $ikey, $signature);
         $b64auth = base64_encode($auth);
 
         return sprintf("Basic %s", $b64auth);
     }
 
-    private function sign($msg, $key, $algo = "sha1")
+    private function sign($msg, $key)
     {
         assert(is_string($msg));
         assert(is_string($key));
 
-        return hash_hmac($algo, $msg, $key);
+        return hash_hmac("sha1", $msg, $key);
     }
 
     private function canonicalize($method, $host, $path, $params, $now)
@@ -116,36 +98,12 @@ class Client
         assert(is_array($params));
         assert(is_string($now));
 
-        if ($this->signature_version === SIGNATURE_CANON_QUERY_STRING_BODY) {
-            $canon = [
-                $now,
-                strtoupper($method),
-                strtolower($host),
-                $path,
-                self::urlEncodeParameters($params)
-            ];
-        } elseif ($this->signature_version === SIGNATURE_CANON_JSON_STRING_BODY) {
-            $canon = [
-                $now,
-                strtoupper($method),
-                strtolower($host),
-                $path,
-                "",
-                hash("sha512", self::bodyEncodeParameters($params))
-            ];
-        }
+        $args = self::urlEncodeParameters($params);
+        $canon = array($now, strtoupper($method), strtolower($host), $path, $args);
 
         $canon = implode("\n", $canon);
 
         return $canon;
-    }
-
-    private function bodyEncodeParameters($params)
-    {
-        assert(is_array($params));
-
-        ksort($params);
-        return json_encode($params);
     }
 
     private function urlEncodeParameters($params)
@@ -204,13 +162,8 @@ class Client
         );
 
         if (in_array($method, ["POST", "PUT"], true)) {
-            if ($this->signature_version === SIGNATURE_CANON_QUERY_STRING_BODY) {
-                $body = http_build_query($params);
-                $headers["Content-Type"] = "application/x-www-form-urlencoded";
-            } elseif ($this->signature_version === SIGNATURE_CANON_JSON_STRING_BODY) {
-                $body = self::bodyEncodeParameters($params);
-                $headers["Content-Type"] = "application/json";
-            }
+            $body = http_build_query($params);
+            $headers["Content-Type"] = "application/x-www-form-urlencoded";
             $headers["Content-Length"] = strval(strlen($body));
             $uri = $path;
         } else {
