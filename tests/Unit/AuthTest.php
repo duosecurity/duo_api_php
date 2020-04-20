@@ -39,6 +39,22 @@ class AuthTest extends BaseTest
         return $successful_preauth_response;
     }
 
+    protected static function getSuccessfulAuthStatusResponse()
+    {
+        return [
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => [
+                    "result" => "waiting",
+                    "status" => "pushed",
+                    "status_msg" => "Pushed a login request to your phone...",
+                ],
+            ]),
+            "success" => true,
+            "http_status_code" => 200,
+        ];
+    }
+
     public function testPingCall()
     {
         $successful_ping_response = [
@@ -188,18 +204,7 @@ class AuthTest extends BaseTest
 
     public function testAuthStatusCall()
     {
-        $successful_auth_status_response = [
-            "response" => json_encode([
-                "stat" => "OK",
-                "response" => [
-                    "result" => "waiting",
-                    "status" => "pushed",
-                    "status_msg" => "Pushed a login request to your phone...",
-                ],
-            ]),
-            "success" => true,
-            "http_status_code" => 200,
-        ];
+        $successful_auth_status_response = self::getSuccessfulAuthStatusResponse();
 
         $auth_client = self::getMockedClient("Auth", $successful_auth_status_response, $paged = false);
 
@@ -211,28 +216,22 @@ class AuthTest extends BaseTest
 
     public function testAuthStatusHttpArguments()
     {
-        $curl_mock = $this->mocked_curl_requester;
-
-        $txid = 'IDIDIDIDIDIDIDID';
+        $successful_auth_status_response = self::getSuccessfulAuthStatusResponse();
+        $auth_client = self::getMockedClient("Auth", $successful_auth_status_response, $paged = false);
 
         // The actual test being performed is in the 'equalTo(...)' calls.
         $host = "api-duo.example.com";
-        $curl_mock->expects($this->once())
-                  ->method('execute')
-                  ->with(
-                      $this->equalTo("https://" . $host . "/auth/v2/auth_status?txid=" . $txid),
-                      $this->equalTo('GET'),
-                      $this->anything(),
-                      $this->anything()
-                  );
+        $txid = 'IDIDIDIDIDIDIDID';
+        $auth_client->requester->expects($this->once())
+            ->method('execute')
+            ->with(
+                $this->equalTo("https://" . $host . "/auth/v2/auth_status?txid=" . $txid),
+                $this->equalTo('GET'),
+                $this->anything(),
+                $this->anything()
+            );
 
-        $duo = new \DuoAPI\Auth(
-            "IKEYIKEYIKEYIKEYIKEY",
-            "SKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEYSKEY",
-            $host,
-            $curl_mock
-        );
-        $duo->auth_status($txid);
+        $auth_client->auth_status($txid);
     }
 
     public function testLogoHttpArguments()
