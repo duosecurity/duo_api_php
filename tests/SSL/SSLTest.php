@@ -9,8 +9,8 @@ namespace SSL;
 class SSLTest extends \PHPUnit_Framework_TestCase
 {
     // https://curl.haxx.se/libcurl/c/libcurl-errors.html
-    const CURLE_PEER_FAILED_VERIFICATION = 51;
-    const CURLE_SSL_CACERT = 60;
+    const CURLE_PEER_FAILED_VERIFICATION_OLD = 51;
+    const CURLE_PEER_FAILED_VERIFICATION = 60;
 
     public function __construct()
     {
@@ -46,6 +46,27 @@ class SSLTest extends \PHPUnit_Framework_TestCase
                 exec('kill ' . $pid);
             }
         });
+    }
+
+    /**
+    * Returns the error code for failed peer certificate verification based on
+    * the version of curl being used.
+    *
+    * Per https://curl.haxx.se/libcurl/c/libcurl-errors.html:
+    *
+    * CURLE_PEER_FAILED_VERIFICATION (60)
+    *    The remote server's SSL certificate or SSH md5 fingerprint was deemed
+    *    not OK. This error code has been unified with CURLE_SSL_CACERT since
+    *    7.62.0. Its previous value was 51.
+    */
+    protected static function getPeerFailedVerificationErrorCode()
+    {
+        $curl_version = curl_version()["version"];
+        if (version_compare($curl_version, "7.62.0", "lt")) {
+            return self::CURLE_PEER_FAILED_VERIFICATION_OLD;
+        }
+
+        return self::CURLE_PEER_FAILED_VERIFICATION;
     }
 
     public function pingSSLServer($requester, $host, $certificate)
@@ -125,7 +146,7 @@ class SSLTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($result["response"]["stat"], "FAIL");
         $this->assertEquals(
             $result["response"]["code"],
-            self::CURLE_SSL_CACERT
+            self::CURLE_PEER_FAILED_VERIFICATION
         );
     }
 
@@ -167,7 +188,7 @@ class SSLTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($result["response"]["stat"], "FAIL");
         $this->assertEquals(
             $result["response"]["code"],
-            self::CURLE_SSL_CACERT
+            self::CURLE_PEER_FAILED_VERIFICATION
         );
     }
 
@@ -210,7 +231,7 @@ class SSLTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($result["response"]["stat"], "FAIL");
         $this->assertEquals(
             $result["response"]["code"],
-            self::CURLE_PEER_FAILED_VERIFICATION
+            self::getPeerFailedVerificationErrorCode()
         );
     }
 

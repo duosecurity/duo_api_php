@@ -66,14 +66,9 @@ array(2) {
 
 ```
 $ ./vendor/bin/phpunit -c phpunit.xml
-PHPUnit 5.3.2 by Sebastian Bergmann and contributors.
-
-..............................                                    30 / 30 (100%)
-
-Time: 1.18 seconds, Memory: 6.00Mb
-
-OK (30 tests, 48 assertions)
 ```
+
+Note that the tests in `tests/SSL/SSLTest.php` require `stunnel3`.
 
 # Linting
 
