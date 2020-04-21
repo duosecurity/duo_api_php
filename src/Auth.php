@@ -105,7 +105,8 @@ class Auth extends Client
         $factor_params,
         $ipaddr = null,
         $async = false,
-        $username = true
+        $username = true,
+        $timeout = 60
     ) {
         assert(is_string($user_identifier));
         assert(
@@ -162,7 +163,26 @@ class Auth extends Client
             $params["device"] = $factor_params["device"];
         }
 
-        return self::jsonApiCall($method, $endpoint, $params);
+        // For auth calls, use the timeout provided if it's greater than the
+        // requester timeout to allow for sufficient time to respond to 2FA
+        $requester_timeout = array_key_exists("timeout", $this->options) ? $this->options["timeout"] : null;
+        if (!$requester_timeout || $requester_timeout < $timeout) {
+            self::setRequesterOption("timeout", $timeout);
+        }
+
+        try {
+            $result = self::jsonApiCall($method, $endpoint, $params);
+        } finally {
+            // If the requester had a timeout set, restore it. Otherwise delete
+            // the timeout we set just for this auth call.
+            if ($requester_timeout) {
+                self::setRequesterOption("timeout", $requester_timeout);
+            } else {
+                unset($this->options["timeout"]);
+            }
+        }
+
+        return $result;
     }
 
     public function auth_status($txid)
