@@ -1,6 +1,10 @@
 # Overview
 
 [![Build Status](https://travis-ci.org/duosecurity/duo_api_php.svg?branch=master)](https://travis-ci.org/duosecurity/duo_api_php)
+[![Issues](https://img.shields.io/github/issues/duosecurity/duo_api_php)](https://github.com/duosecurity/duo_api_php/issues)
+[![Forks](https://img.shields.io/github/forks/duosecurity/duo_api_php)](https://github.com/duosecurity/duo_api_php/network/members)
+[![Stars](https://img.shields.io/github/stars/duosecurity/duo_api_php)](https://github.com/duosecurity/duo_api_php/stargazers)
+[![License](https://img.shields.io/badge/License-View%20License-orange)](https://github.com/duosecurity/duo_api_php/blob/master/LICENSE)
 
 **Auth** - https://www.duosecurity.com/docs/authapi
 
