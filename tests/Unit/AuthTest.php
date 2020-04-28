@@ -39,6 +39,22 @@ class AuthTest extends BaseTest
         return $successful_preauth_response;
     }
 
+    protected static function getSuccessfulAuthResponse()
+    {
+        return [
+            "response" => json_encode([
+                "stat" => "OK",
+                "response" => [
+                    "result" => "waiting",
+                    "status" => "pushed",
+                    "status_msg" => "Pushed a login request to your phone...",
+                ],
+            ]),
+            "success" => true,
+            "http_status_code" => 200,
+        ];
+    }
+
     protected static function getSuccessfulAuthStatusResponse()
     {
         return [
@@ -181,25 +197,103 @@ class AuthTest extends BaseTest
 
     public function testAuthCall()
     {
-        $successful_auth_response = [
-            "response" => json_encode([
-                "stat" => "OK",
-                "response" => [
-                    "result" => "allow",
-                    "status" => "allow",
-                    "status_msg" => "Success. Logging you in...",
-                ],
-            ]),
-            "success" => true,
-            "http_status_code" => 200,
-        ];
-
+        $successful_auth_response = self::getSuccessfulAuthResponse();
         $auth_client = self::getMockedClient("Auth", $successful_auth_response, $paged = false);
+
+        // Set up the expectation that the auth call will be made with the
+        // default increased timeout for auths.
+        $auth_client->requester->expects($this->once())
+            ->method('options')
+            ->with($this->equalTo([
+                "timeout" => 60,
+            ]));
 
         $result = $auth_client->auth('testuser', 'passcode', ['passcode' => '123']);
 
         $this->assertEquals($result["response"]["stat"], "OK");
         $this->assertTrue($result["success"]);
+
+        // Make sure the original requester timeout got restored when the
+        // auth was done
+        $this->assertEquals($auth_client->options["timeout"], 10);
+    }
+
+    public function testAuthCallTimeout()
+    {
+        $successful_auth_response = self::getSuccessfulAuthResponse();
+        $auth_client = self::getMockedClient("Auth", $successful_auth_response, $paged = false);
+
+        $test_timeout = 120;
+        // Set up the expectation that the auth call will be made with the
+        // timeout passed to auth()
+        $auth_client->requester->expects($this->once())
+            ->method('options')
+            ->with($this->equalTo([
+                "timeout" => $test_timeout,
+            ]));
+
+
+        $result = $auth_client->auth('testuser', 'passcode', ['passcode' => '123'], null, false, true, $test_timeout);
+
+        $this->assertEquals($result["response"]["stat"], "OK");
+        $this->assertTrue($result["success"]);
+
+        // Make sure the original requester timeout got restored when the
+        // auth was done
+        $this->assertEquals($auth_client->options["timeout"], 10);
+    }
+
+    public function testAuthCallNoRequesterTimeout()
+    {
+        $successful_auth_response = self::getSuccessfulAuthResponse();
+        $auth_client = self::getMockedClient("Auth", $successful_auth_response, $paged = false);
+
+        // Set up the expectation that the auth call will be made with the
+        // default increased timeout for auths.
+        $auth_client->requester->expects($this->once())
+            ->method('options')
+            ->with($this->equalTo([
+                "timeout" => 60,
+            ]));
+
+        // Test that we still use the default timeout for the auth() method
+        // even if someone blows away the timeout on the requester for some reason
+        $auth_client->options = [];
+        $result = $auth_client->auth('testuser', 'passcode', ['passcode' => '123']);
+
+        $this->assertEquals($result["response"]["stat"], "OK");
+        $this->assertTrue($result["success"]);
+
+        // Make sure the timeout got removed from the requester options when
+        // the auth was done.
+        $this->assertEquals($auth_client->options, []);
+
+    }
+
+    public function testAuthCallLargerRequesterTimeout()
+    {
+        $successful_auth_response = self::getSuccessfulAuthResponse();
+        $auth_client = self::getMockedClient("Auth", $successful_auth_response, $paged = false);
+
+        $test_timeout = 300;
+        $auth_client->setRequesterOption("timeout", $test_timeout);
+
+        // Set up the expectation that the auth call will be made with the
+        // timeout on the requester since it's larger than auth()'s timeout
+        // parameter
+        $auth_client->requester->expects($this->once())
+            ->method('options')
+            ->with($this->equalTo([
+                "timeout" => $test_timeout,
+            ]));
+
+        $result = $auth_client->auth('testuser', 'passcode', ['passcode' => '123']);
+
+        $this->assertEquals($result["response"]["stat"], "OK");
+        $this->assertTrue($result["success"]);
+
+        // The timeout on the requester should not have changed
+        $this->assertEquals($auth_client->options["timeout"], $test_timeout);
     }
 
     public function testAuthStatusCall()
