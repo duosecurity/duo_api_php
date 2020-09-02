@@ -3,6 +3,7 @@ namespace DuoAPI;
 
 use DateTime;
 
+const VERSION = "1.1.0";
 const INITIAL_BACKOFF_SECONDS = 1;
 const MAX_BACKOFF_SECONDS = 32;
 const BACKOFF_FACTOR = 2;
@@ -159,6 +160,7 @@ class Client
         $headers = [];
         $headers["Date"] = $now;
         $headers["Host"] = $this->host;
+        $headers["User-Agent"] = "duo_api_php/" . VERSION;
         $headers["Authorization"] = self::signParameters(
             $method,
             $this->host,
