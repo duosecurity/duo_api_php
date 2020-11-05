@@ -67,8 +67,10 @@ class CurlRequester implements Requester
         if ($method === "POST") {
             curl_setopt($this->ch, CURLOPT_POST, true);
             curl_setopt($this->ch, CURLOPT_POSTFIELDS, $body);
+            curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, null);
         } elseif ($method === "GET") {
             curl_setopt($this->ch, CURLOPT_HTTPGET, true);
+            curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, null);
         } else {
             curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $method);
         }
