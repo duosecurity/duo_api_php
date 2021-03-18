@@ -15,4 +15,4 @@ addons:
 before_install:
     - composer install
 script:
-    - ./vendor/bin/phpunit
+    - XDEBUG_MODE=coverage ./vendor/bin/phpunit
