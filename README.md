@@ -1,6 +1,6 @@
 # Overview
 
-[![Build Status](https://travis-ci.org/duosecurity/duo_api_php.svg?branch=master)](https://travis-ci.org/duosecurity/duo_api_php)
+[![Build Status](https://github.com/duosecurity/duo_api_php/workflows/PHP%20CI/badge.svg?branch=master)](https://github.com/duosecurity/duo_api_php/actions)
 
 **Auth** - https://www.duosecurity.com/docs/authapi
 
