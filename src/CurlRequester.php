@@ -3,6 +3,8 @@ namespace DuoAPI;
 
 class CurlRequester implements Requester
 {
+    /** @var resource */
+    protected $ch;
 
     public function __construct()
     {
@@ -11,7 +13,7 @@ class CurlRequester implements Requester
 
     public function __destruct()
     {
-        if (property_exists($this, 'ch')) {
+        if (is_resource($this->ch)) {
             curl_close($this->ch);
         }
     }
@@ -63,17 +65,10 @@ class CurlRequester implements Requester
 
         curl_setopt($this->ch, CURLOPT_URL, $url);
         curl_setopt($this->ch, CURLOPT_HTTPHEADER, $headers);
-
-        if ($method === "POST") {
-            curl_setopt($this->ch, CURLOPT_POST, true);
-            curl_setopt($this->ch, CURLOPT_POSTFIELDS, $body);
-            curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, null);
-        } elseif ($method === "GET") {
-            curl_setopt($this->ch, CURLOPT_HTTPGET, true);
-            curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, null);
-        } else {
-            curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $method);
-        }
+        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $body);
+        curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($this->ch, CURLOPT_POST, $method === 'POST');
+        curl_setopt($this->ch, CURLOPT_HTTPGET, $method === 'GET');
 
         $result = curl_exec($this->ch);
 

@@ -98,6 +98,8 @@ class FileRequester implements Requester
 
         if ($method === "POST") {
             $this->http_options['http']['content'] = $body;
+        } else {
+            unset($this->http_options['http']['content']);
         }
 
         $context = stream_context_create($this->http_options);
