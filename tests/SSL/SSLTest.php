@@ -161,7 +161,7 @@ class SSLTest extends \PHPUnit\Framework\TestCase
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertStringContainsString(
+        $this->assertStringContainsStringIgnoringCase(
             "failed to open stream: operation failed",
             $result["response"]["message"]
         );
@@ -203,7 +203,7 @@ class SSLTest extends \PHPUnit\Framework\TestCase
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertStringContainsString(
+        $this->assertStringContainsStringIgnoringCase(
             "failed to open stream: operation failed",
             $result["response"]["message"]
         );
@@ -246,7 +246,7 @@ class SSLTest extends \PHPUnit\Framework\TestCase
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertStringContainsString(
+        $this->assertStringContainsStringIgnoringCase(
             "failed to open stream: operation failed",
             $result["response"]["message"]
         );
