@@ -367,7 +367,7 @@ class AuthTest extends BaseTest
 
         $result = $auth_client->logo();
 
-        $this->assertInternalType('string', $result["response"]);
+        $this->assertIsString($result["response"]);
     }
 
     public function testLogoNotFound()
@@ -378,6 +378,6 @@ class AuthTest extends BaseTest
 
         $result = $auth_client->logo();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
     }
 }

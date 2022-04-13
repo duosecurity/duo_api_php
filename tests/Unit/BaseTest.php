@@ -1,9 +1,9 @@
 <?php
 namespace Unit;
 
-abstract class BaseTest extends \PHPUnit_Framework_TestCase
+abstract class BaseTest extends \PHPUnit\Framework\TestCase
 {
-    public function setUp()
+    public function setUp() : void
     {
         $this->mocked_curl_requester = $this->getMockBuilder('\DuoAPI\CurlRequester')
                                             ->setMethods(['execute', 'options'])

@@ -6,19 +6,19 @@ namespace SSL;
  * was extremely helpful for setting up the certificate testing environment.
  */
 
-class SSLTest extends \PHPUnit_Framework_TestCase
+class SSLTest extends \PHPUnit\Framework\TestCase
 {
     // https://curl.haxx.se/libcurl/c/libcurl-errors.html
     const CURLE_PEER_FAILED_VERIFICATION_OLD = 51;
     const CURLE_PEER_FAILED_VERIFICATION = 60;
 
-    public function __construct()
+    public function setUp() : void
     {
         $this->good_chain = dirname(__FILE__) . "/" . "ca-chain-self.cert.pem";
         $this->bad_chain = dirname(__FILE__) . "/" . "ca-chain-mozilla.cert.pem";
     }
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
         $silence = '>/dev/null 2>&1 & echo $!';
 
@@ -161,7 +161,7 @@ class SSLTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertContains(
+        $this->assertStringContainsString(
             "failed to open stream: operation failed",
             $result["response"]["message"]
         );
@@ -203,7 +203,7 @@ class SSLTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertContains(
+        $this->assertStringContainsString(
             "failed to open stream: operation failed",
             $result["response"]["message"]
         );
@@ -246,7 +246,7 @@ class SSLTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($result["success"]);
         $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertContains(
+        $this->assertStringContainsString(
             "failed to open stream: operation failed",
             $result["response"]["message"]
         );
