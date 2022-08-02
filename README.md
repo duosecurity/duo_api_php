@@ -8,6 +8,11 @@
 
 **Accounts** - https://www.duosecurity.com/docs/accountsapi
 
+## Tested Against PHP Versions:
+* 7.4
+* 8.0
+* 8.1
+
 # Installing
 
 Development:
