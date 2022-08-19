@@ -87,7 +87,7 @@ class Client
         assert(is_string($msg));
         assert(is_string($key));
 
-        return hash_hmac("sha1", $msg, $key);
+        return hash_hmac("sha512", $msg, $key);
     }
 
     private function canonicalize($method, $host, $path, $params, $now)

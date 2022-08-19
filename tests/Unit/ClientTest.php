@@ -150,7 +150,7 @@ class ClientTest extends BaseTest
 
         $result = self::callClientMethod('signParameters', ...$canon);
 
-        $this->assertEquals("Basic dGVzdF9pa2V5OmYwMTgxMWNiYmY5NTYxNjIzYWI0NWI4OTMwOTYyNjdmZDQ2YTUxNzg=", $result);
+        $this->assertEquals("Basic dGVzdF9pa2V5OjA1MDgwNjUwMzVhMDNiMmExZGUyZjQ1M2U2MjllNzkxZDE4MDMyOWUxNTdmNjVkZjZiM2UwZjA4Mjk5ZDQzMjFlMWM1YzdhN2M3ZWU2YjllNWZjODBkMWZiNmZiZjNhZDVlYjdjNDRkZDNiMzk4NWEwMmMzN2FjYTUzZWMzNjk4", $result);
     }
 
     public function testSignature()
@@ -162,7 +162,7 @@ class ClientTest extends BaseTest
 
         $result = self::callClientMethod('sign', ...$args);
 
-        $this->assertEquals("f01811cbbf9561623ab45b893096267fd46a5178", $result);
+        $this->assertEquals("0508065035a03b2a1de2f453e629e791d180329e157f65df6b3e0f08299d4321e1c5c7a7c7ee6b9e5fc80d1fb6fbf3ad5eb7c44dd3b3985a02c37aca53ec3698", $result);
     }
 
     public function testJsonPagingApiCallSuccess()
