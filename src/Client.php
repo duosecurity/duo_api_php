@@ -12,6 +12,14 @@ const RATE_LIMIT_HTTP_CODE = 429;
 class Client
 {
     const DEFAULT_PAGING_LIMIT = '100';
+    
+    public $ikey;
+    public $skey;
+    public $host;
+    public $requester;
+    public $paging;
+    public $options;
+    public $sleep_service;
 
     public function __construct(
         $ikey,

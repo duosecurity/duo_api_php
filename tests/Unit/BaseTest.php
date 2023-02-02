@@ -3,6 +3,10 @@ namespace Unit;
 
 abstract class BaseTest extends \PHPUnit\Framework\TestCase
 {
+    public $mocked_curl_requester;
+    public $random_numbers;
+    public $mock_sleep_svc;
+
     public function setUp() : void
     {
         $this->mocked_curl_requester = $this->getMockBuilder('\DuoAPI\CurlRequester')

@@ -12,6 +12,9 @@ class SSLTest extends \PHPUnit\Framework\TestCase
     const CURLE_PEER_FAILED_VERIFICATION_OLD = 51;
     const CURLE_PEER_FAILED_VERIFICATION = 60;
 
+    public $good_chain;
+    public $bad_chain;
+
     public function setUp() : void
     {
         $this->good_chain = dirname(__FILE__) . "/" . "ca-chain-self.cert.pem";
