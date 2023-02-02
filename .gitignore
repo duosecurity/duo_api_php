@@ -3,3 +3,5 @@ vendor
 *.swp
 *.swo
 .idea
+.phpunit.result.cache
+composer.lock
