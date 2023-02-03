@@ -13,6 +13,14 @@
 * 8.0
 * 8.1
 
+## TLS 1.2 and 1.3 Support
+
+Duo_api_php uses PHP's cURL extension and OpenSSL for TLS operations.  TLS support will depend on the versions of multiple libraries:
+
+TLS 1.2 support requires PHP 5.5 or higher, curl 7.34.0 or higher, and OpenSSL 1.0.1 or higher.
+
+TLS 1.3 support requires PHP 7.3 or higher, curl 7.61.0 or higher, and OpenSSL 1.1.1 or higher.
+
 # Installing
 
 Development:
