@@ -9,6 +9,7 @@ on:
 
 jobs:
   ci:
+    name: PHP CI - test
     runs-on: ubuntu-latest
 
     strategy:
