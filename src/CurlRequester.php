@@ -1,6 +1,8 @@
 <?php
 namespace DuoAPI;
 
+define('DEFAULT_CA_CERTS', __DIR__."/ca_certs.pem");
+
 class CurlRequester implements Requester
 {
 
@@ -40,6 +42,10 @@ class CurlRequester implements Requester
         foreach ($curl_options as $key => $value) {
             $curl_options[$key] = $options[$value];
         }
+
+        if (!isset($curl_options[CURLOPT_CAINFO])) {
+            $curl_options[CURLOPT_CAINFO] = DEFAULT_CA_CERTS;
+        };
 
         // Mandatory configuration options
         $curl_options[CURLOPT_RETURNTRANSFER] = 1;
