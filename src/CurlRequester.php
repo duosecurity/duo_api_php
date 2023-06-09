@@ -5,7 +5,8 @@ define('DEFAULT_CA_CERTS', __DIR__."/ca_certs.pem");
 
 class CurlRequester implements Requester
 {
-
+    public $ch;
+    
     public function __construct()
     {
         $this->ch = curl_init();
@@ -13,7 +14,7 @@ class CurlRequester implements Requester
 
     public function __destruct()
     {
-        if (property_exists($this, 'ch')) {
+        if (isset($this->ch)) {
             curl_close($this->ch);
         }
     }

@@ -3,6 +3,7 @@ namespace DuoAPI;
 
 class FileRequester implements Requester
 {
+    public $http_options;
 
     public function __construct()
     {
