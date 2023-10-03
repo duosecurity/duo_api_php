@@ -330,7 +330,7 @@ class ClientTest extends BaseTest
 
         $client = self::getMockedClient("Client", $response, $paged = true);
         $this->mocked_curl_requester->method('execute')->with(
-            $this->anything),
+            $this->anything(),
             $this->anything(),
             $this->callback(function($headers) {
                 $version = "duo_api_php/" . \DuoAPI\VERSION;
