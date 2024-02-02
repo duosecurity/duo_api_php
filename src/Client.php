@@ -3,7 +3,7 @@ namespace DuoAPI;
 
 use DateTime;
 
-const VERSION = "1.1.0";
+const VERSION = "1.1.0-dev";
 const INITIAL_BACKOFF_SECONDS = 1;
 const MAX_BACKOFF_SECONDS = 32;
 const BACKOFF_FACTOR = 2;
