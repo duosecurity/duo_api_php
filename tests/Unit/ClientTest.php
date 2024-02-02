@@ -317,4 +317,29 @@ class ClientTest extends BaseTest
             32 + ($this->random_numbers[5] / 1000),
         ], ($this->mock_sleep_svc->sleep_calls));
     }
+
+    public function testUserAgent()
+    {
+        $success_resp =             [
+            "success" => true,
+            "response" => "not rate limited",
+            "http_status_code" => 200,
+        ];
+
+        $response = [$success_resp];
+
+        $client = self::getMockedClient("Client", $response, $paged = true);
+        $this->mocked_curl_requester->method('execute')->with(
+            $this->anything(),
+            $this->anything(),
+            $this->callback(function($headers) {
+                $version = "duo_api_php/" . \DuoAPI\VERSION;
+                $this->assertArrayHasKey("User-Agent", $headers);
+                $this->assertEquals($headers["User-Agent"], $version);
+                return true;
+            }),
+            $this->anything()
+        );
+        $response = $client->apiCall("GET", "/foo/bar", []);
+    }
 }
