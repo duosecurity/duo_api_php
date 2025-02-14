@@ -72,7 +72,7 @@ class Client
         return $this;
     }
 
-    private function signParameters($method, $host, $path, $params, $skey, $ikey, $now)
+    private function signParameters($method, $host, $path, $params, $skey, $ikey, $now, $body, $additional_headers)
     {
         assert(is_string($method));
         assert(is_string($host));
@@ -82,8 +82,8 @@ class Client
         assert(is_string($ikey));
         assert(is_string($now));
 
-        $canon = self::canonicalize($method, $host, $path, $params, $now);
-
+        $canon = self::canonicalize($method, $host, $path, $params, $now, $body, $additional_headers);
+        
         $signature = self::sign($canon, $skey);
         $auth = sprintf("%s:%s", $ikey, $signature);
         $b64auth = base64_encode($auth);
@@ -96,23 +96,77 @@ class Client
         assert(is_string($msg));
         assert(is_string($key));
 
-        return hash_hmac("sha1", $msg, $key);
+        $msg = mb_convert_encoding($msg ?? '', 'UTF-8', 'ISO-8859-1');
+        $key = mb_convert_encoding($key ?? '', 'UTF-8', 'ISO-8859-1');
+
+        return hash_hmac("sha512", $msg, $key);
     }
 
-    private function canonicalize($method, $host, $path, $params, $now)
+    private function canonicalize($method, $host, $path, $params, $now, $body = null, $additional_headers = [])
     {
         assert(is_string($method));
         assert(is_string($host));
         assert(is_string($path));
         assert(is_array($params));
         assert(is_string($now));
+        assert(is_string($body) || $body === null);
+        assert(is_array($additional_headers));
 
         $args = self::urlEncodeParameters($params);
-        $canon = array($now, strtoupper($method), strtolower($host), $path, $args);
+        
+        $canon = array(
+            $now,
+            strtoupper($method),
+            strtolower($host),
+            $path,
+            $args,
+            hash('sha512', mb_convert_encoding($body ?? '', 'UTF-8', 'ISO-8859-1')),
+            self::canonXDuoHeaders($additional_headers),
+        );
 
         $canon = implode("\n", $canon);
 
         return $canon;
+    }
+
+    private function canonXDuoHeaders($additional_headers = [])
+    {
+        assert(is_array($additional_headers));
+        
+        $lowered_headers = array_change_key_case($additional_headers, CASE_LOWER);
+        ksort($lowered_headers);
+
+        $canon_list = [];
+        $added_headers = [];
+
+        foreach ($lowered_headers as $header_name => $value) {
+            self::validateAdditionalHeader($header_name, $value, $added_headers);
+            array_push($canon_list, $header_name, $value);
+            array_push($added_headers, $header_name);
+        }
+
+        $canon = implode("\x00", $canon_list);
+        return hash('sha512', mb_convert_encoding($canon ?? '', 'UTF-8', 'ISO-8859-1'));
+    }
+
+    private function validateAdditionalHeader($name, $value, $addedHeaders)
+    {
+        if ($name === null || $value === null)
+        {
+            throw new \InvalidArgumentException("Not allowed 'null' as a header name or value");
+        } elseif (str_contains($name,"\x00"))
+        {
+            throw new \InvalidArgumentException("Not allowed 'Null' character in header name");
+        } elseif (str_contains($value,"\x00"))
+        {
+            throw new \InvalidArgumentException("Not allowed 'Null' character in header value");
+        } elseif (!str_starts_with(strtolower($name),"x-duo-"))
+        {
+            throw new \InvalidArgumentException("Additional headers must start with 'X-Duo-'");
+        } elseif (in_array(strtolower($name), $addedHeaders, true))
+        {
+            throw new \InvalidArgumentException("Duplicate header passed, header=$name");
+        }
     }
 
     private function urlEncodeParameters($params)
@@ -149,17 +203,27 @@ class Client
         }
     }
 
-    public function apiCall($method, $path, $params)
+    public function apiCall($method, $path, $params, $additional_headers = [])
     {
         assert(is_string($method));
         assert(is_string($path));
         assert(is_array($params));
+        assert(is_array($additional_headers));
 
         $now = date(DateTime::RFC2822);
-
         $headers = [];
+        if (in_array($method, ["POST", "PUT", "PATCH"], true)) {
+            ksort($params);
+            $body = json_encode($params);
+            $params = [];
+            $headers["Content-Type"] = "application/json";
+            $uri = $path;
+        } else {
+            $body = "";
+            $uri = $path . (!empty($params) ? "?" . self::urlEncodeParameters($params) : "");
+        }
+
         $headers["Date"] = $now;
-        $headers["Host"] = $this->host;
         $headers["User-Agent"] = "duo_api_php/" . VERSION;
         $headers["Authorization"] = self::signParameters(
             $method,
@@ -168,18 +232,10 @@ class Client
             $params,
             $this->skey,
             $this->ikey,
-            $now
+            $now,
+            $body,
+            $additional_headers,
         );
-
-        if (in_array($method, ["POST", "PUT"], true)) {
-            $body = http_build_query($params);
-            $headers["Content-Type"] = "application/x-www-form-urlencoded";
-            $headers["Content-Length"] = strval(strlen($body));
-            $uri = $path;
-        } else {
-            $body = null;
-            $uri = $path . (!empty($params) ? "?" . self::urlEncodeParameters($params) : "");
-        }
 
         return self::makeRequest($method, $uri, $body, $headers);
     }

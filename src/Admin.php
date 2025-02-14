@@ -188,7 +188,7 @@ class Admin extends Client
     public function integrations($ikey = null)
     {
         $method = "GET";
-        $endpoint = "/admin/v1/integrations";
+        $endpoint = "/admin/v3/integrations";
         $params = [];
 
         if ($ikey) {
