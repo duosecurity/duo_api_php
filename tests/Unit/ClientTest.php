@@ -3,6 +3,8 @@ namespace Unit;
 
 class ClientTest extends BaseTest
 {
+    const JSON_STRING = '{"alpha":["a","b","c","d"],"data":"abc123","info":{"another":2,"test":1}}';
+
     /*
      * Yes, we're testing these private methods by forcing them to be
      * accessible, and yes this is testing implementation details. There
@@ -113,44 +115,202 @@ class ClientTest extends BaseTest
 
     public function testCanonicalize()
     {
+        $params = [
+            self::makeUnicode("\u469a\u287b\u35d0\u8ef3\u6727\u502a\u0810\ud091\u00c8\uc170") => self::makeUnicode("\u0f45\u1a76\u341a\u654c\uc23f\u9b09\uabe2\u8343\u1b27\u60d0"),
+            self::makeUnicode("\u7449\u7e4b\uccfb\u59ff\ufe5f\u83b7\uadcc\u900c\ucfd1\u7813") => self::makeUnicode("\u8db7\u5022\u92d3\u42ef\u207d\u8730\uacfe\u5617\u0946\u4e30"),
+            self::makeUnicode("\u7470\u9314\u901c\u9eae\u40d8\u4201\u82d8\u8c70\u1d31\ua042") => self::makeUnicode("\u17d9\u0ba8\u9358\uaadf\ua42a\u48be\ufb96\u6fe9\ub7ff\u32f3"),
+            self::makeUnicode("\uc2c5\u2c1d\u2620\u3617\u96b3F\u8605\u20e8\uac21\u5934") => self::makeUnicode("\ufba9\u41aa\ubd83\u840b\u2615\u3e6e\u652d\ua8b5\ud56bU"),
+        ];
+
+        $additional_headers = [
+            "x-duo-A" => "header_value_1",
+            "X-Duo-B" => "header_value_2"
+        ];
+
+        $hashed_body = hash('sha512', mb_convert_encoding(self::JSON_STRING, 'UTF-8', 'ISO-8859-1'));
+        $headers = self::callClientMethod('canonXDuoHeaders', ...[$additional_headers]);
+
         $canon = [
             'PoSt',
             'foO.BAr52.cOm',
             '/Foo/BaR2/qux',
-            [
-                self::makeUnicode("\u469a\u287b\u35d0\u8ef3\u6727\u502a\u0810\ud091\u00c8\uc170") => self::makeUnicode("\u0f45\u1a76\u341a\u654c\uc23f\u9b09\uabe2\u8343\u1b27\u60d0"),
-                self::makeUnicode("\u7449\u7e4b\uccfb\u59ff\ufe5f\u83b7\uadcc\u900c\ucfd1\u7813") => self::makeUnicode("\u8db7\u5022\u92d3\u42ef\u207d\u8730\uacfe\u5617\u0946\u4e30"),
-                self::makeUnicode("\u7470\u9314\u901c\u9eae\u40d8\u4201\u82d8\u8c70\u1d31\ua042") => self::makeUnicode("\u17d9\u0ba8\u9358\uaadf\ua42a\u48be\ufb96\u6fe9\ub7ff\u32f3"),
-                self::makeUnicode("\uc2c5\u2c1d\u2620\u3617\u96b3F\u8605\u20e8\uac21\u5934") => self::makeUnicode("\ufba9\u41aa\ubd83\u840b\u2615\u3e6e\u652d\ua8b5\ud56bU"),
-            ],
+            $params,
             'Fri, 07 Dec 2012 17:18:00 -0000',
+            self::JSON_STRING,
+            $additional_headers,
         ];
+
+        $expected = "Fri, 07 Dec 2012 17:18:00 -0000\n".
+            "POST\n".
+            "foo.bar52.com\n".
+            "/Foo/BaR2/qux\n".
+            self::callClientMethod('urlEncodeParameters', $params)."\n".
+            $hashed_body."\n".
+            $headers;
 
         $result = self::callClientMethod('canonicalize', ...$canon);
 
-        $this->assertEquals("Fri, 07 Dec 2012 17:18:00 -0000\nPOST\nfoo.bar52.com\n/Foo/BaR2/qux\n%E4%9A%9A%E2%A1%BB%E3%97%90%E8%BB%B3%E6%9C%A7%E5%80%AA%E0%A0%90%ED%82%91%C3%88%EC%85%B0=%E0%BD%85%E1%A9%B6%E3%90%9A%E6%95%8C%EC%88%BF%E9%AC%89%EA%AF%A2%E8%8D%83%E1%AC%A7%E6%83%90&%E7%91%89%E7%B9%8B%EC%B3%BB%E5%A7%BF%EF%B9%9F%E8%8E%B7%EA%B7%8C%E9%80%8C%EC%BF%91%E7%A0%93=%E8%B6%B7%E5%80%A2%E9%8B%93%E4%8B%AF%E2%81%BD%E8%9C%B0%EA%B3%BE%E5%98%97%E0%A5%86%E4%B8%B0&%E7%91%B0%E9%8C%94%E9%80%9C%E9%BA%AE%E4%83%98%E4%88%81%E8%8B%98%E8%B1%B0%E1%B4%B1%EA%81%82=%E1%9F%99%E0%AE%A8%E9%8D%98%EA%AB%9F%EA%90%AA%E4%A2%BE%EF%AE%96%E6%BF%A9%EB%9F%BF%E3%8B%B3&%EC%8B%85%E2%B0%9D%E2%98%A0%E3%98%97%E9%9A%B3F%E8%98%85%E2%83%A8%EA%B0%A1%E5%A4%B4=%EF%AE%A9%E4%86%AA%EB%B6%83%E8%90%8B%E2%98%95%E3%B9%AE%E6%94%AD%EA%A2%B5%ED%95%ABU", $result);
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testValidateAdditionalHeader()
+    {
+        $name = "x-duo-b";
+        $value = "value";
+        $addedHeaders = ["x-duo-a"];
+
+        // Just make sure this doesn't throw an exception
+        $result = self::callClientMethod('validateAdditionalHeader', $name, $value, $addedHeaders);
+        $this->assertEquals(null, $result);
+    }
+
+    public function testValidateAdditionalHeaderNullName()
+    {
+        $name = null;
+        $value = "value";
+        $addedHeaders = ["x-duo-a"];
+
+        try {
+            self::callClientMethod('validateAdditionalHeader', $name, $value, $addedHeaders);
+            $this->fail('Expected InvalidArgumentException not thrown');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertEquals("Not allowed 'null' as a header name or value", $e->getMessage());
+        }
+    }
+
+    public function testValidateAdditionalHeaderNullValue()
+    {
+        $name = "x-duo-b";
+        $value = null;
+        $addedHeaders = ["x-duo-a"];
+        
+        try {
+            self::callClientMethod('validateAdditionalHeader', $name, $value, $addedHeaders);
+            $this->fail('Expected InvalidArgumentException not thrown');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertEquals("Not allowed 'null' as a header name or value", $e->getMessage());
+        }
+    }
+
+    public function testValidateAdditionalHeaderNullCharName()
+    {
+        $name = "x-du\x00o-b";
+        $value = "value";
+        $addedHeaders = ["x-duo-a"];
+
+        try {
+            self::callClientMethod('validateAdditionalHeader', $name, $value, $addedHeaders);
+            $this->fail('Expected InvalidArgumentException not thrown');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertEquals("Not allowed 'Null' character in header name", $e->getMessage());
+        }
+    }
+
+    public function testValidateAdditionalHeaderNullCharValue()
+    {
+        $name = "x-duo-b";
+        $value = "value\x00";
+        $addedHeaders = ["x-duo-a"];
+        
+        try {
+            self::callClientMethod('validateAdditionalHeader', $name, $value, $addedHeaders);
+            $this->fail('Expected InvalidArgumentException not thrown');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertEquals("Not allowed 'Null' character in header value", $e->getMessage());
+        }
+    }
+
+    public function testValidateAdditionalHeaderBadPrefix()
+    {
+        $name = "x-b";
+        $value = "value";
+        $addedHeaders = ["x-duo-a"];
+        
+        try {
+            self::callClientMethod('validateAdditionalHeader', $name, $value, $addedHeaders);
+            $this->fail('Expected InvalidArgumentException not thrown');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertEquals("Additional headers must start with 'X-Duo-'", $e->getMessage());
+        }
+    }
+
+    public function testValidateAdditionalHeaderDuplicate()
+    {
+        $name = "x-duo-a";
+        $value = "value";
+        $addedHeaders = ["x-duo-a"];
+        
+        try {
+            $result = self::callClientMethod('validateAdditionalHeader', $name, $value, $addedHeaders);
+            $this->fail('Expected InvalidArgumentException not thrown');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertEquals("Duplicate header passed, header=x-duo-a", $e->getMessage());
+        }
+    }
+
+    public function testCanonXDuoHeader()
+    {
+        $additional_headers = [
+            "x-duo-A" => "header_value_1",
+            "X-Duo-B" => "header_value_2"
+        ];
+
+        $result = self::callClientMethod('canonXDuoHeaders', ...[$additional_headers]);
+
+        $string_to_hash = implode("\x00", ["x-duo-a", "header_value_1", "x-duo-b", "header_value_2"]);
+        $expected = hash('sha512', mb_convert_encoding($string_to_hash, 'UTF-8', 'ISO-8859-1'));
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testCanonXDuoHeaderBadHeader()
+    {
+        $additional_headers = [
+            "x-duo-A" => "header_value_1",
+            "X-Duo-B" => null
+        ];
+
+        try {
+            self::callClientMethod('canonXDuoHeaders', ...[$additional_headers]);
+            self::fail('Expected InvalidArgumentException not thrown');
+        } catch (\InvalidArgumentException $e) {
+            self::assertEquals("Not allowed 'null' as a header name or value", $e->getMessage());
+        }
     }
 
     public function testSignParameters()
     {
-        $canon = [
-            'PoSt',
-            'foO.BAr52.cOm',
-            '/Foo/BaR2/qux',
-            [
-                self::makeUnicode("\u469a\u287b\u35d0\u8ef3\u6727\u502a\u0810\ud091\u00c8\uc170") => self::makeUnicode("\u0f45\u1a76\u341a\u654c\uc23f\u9b09\uabe2\u8343\u1b27\u60d0"),
-                self::makeUnicode("\u7449\u7e4b\uccfb\u59ff\ufe5f\u83b7\uadcc\u900c\ucfd1\u7813") => self::makeUnicode("\u8db7\u5022\u92d3\u42ef\u207d\u8730\uacfe\u5617\u0946\u4e30"),
-                self::makeUnicode("\u7470\u9314\u901c\u9eae\u40d8\u4201\u82d8\u8c70\u1d31\ua042") => self::makeUnicode("\u17d9\u0ba8\u9358\uaadf\ua42a\u48be\ufb96\u6fe9\ub7ff\u32f3"),
-                self::makeUnicode("\uc2c5\u2c1d\u2620\u3617\u96b3F\u8605\u20e8\uac21\u5934") => self::makeUnicode("\ufba9\u41aa\ubd83\u840b\u2615\u3e6e\u652d\ua8b5\ud56bU"),
-            ],
-            'gtdfxv9YgVBYcF6dl2Eq17KUQJN2PLM2ODVTkvoT',
-            'test_ikey',
-            'Fri, 07 Dec 2012 17:18:00 -0000',
+        $method = 'PoSt';
+        $host = 'foO.BAr52.cOm';
+        $path = '/Foo/BaR2/qux';
+        $params = [
+            self::makeUnicode("\u469a\u287b\u35d0\u8ef3\u6727\u502a\u0810\ud091\u00c8\uc170") => self::makeUnicode("\u0f45\u1a76\u341a\u654c\uc23f\u9b09\uabe2\u8343\u1b27\u60d0"),
+            self::makeUnicode("\u7449\u7e4b\uccfb\u59ff\ufe5f\u83b7\uadcc\u900c\ucfd1\u7813") => self::makeUnicode("\u8db7\u5022\u92d3\u42ef\u207d\u8730\uacfe\u5617\u0946\u4e30"),
+            self::makeUnicode("\u7470\u9314\u901c\u9eae\u40d8\u4201\u82d8\u8c70\u1d31\ua042") => self::makeUnicode("\u17d9\u0ba8\u9358\uaadf\ua42a\u48be\ufb96\u6fe9\ub7ff\u32f3"),
+            self::makeUnicode("\uc2c5\u2c1d\u2620\u3617\u96b3F\u8605\u20e8\uac21\u5934") => self::makeUnicode("\ufba9\u41aa\ubd83\u840b\u2615\u3e6e\u652d\ua8b5\ud56bU"),
+        ];
+        $skey = 'gtdfxv9YgVBYcF6dl2Eq17KUQJN2PLM2ODVTkvoT';
+        $ikey = 'test_ikey';
+        $now = 'Fri, 07 Dec 2012 17:18:00 -0000';
+        $body = null;
+        $additional_headers = [
+            'X-Duo-Header-1' => 'hEaDeR_vAlUe_1'
         ];
 
-        $result = self::callClientMethod('signParameters', ...$canon);
+        $signParametersParams = [
+            $method,
+            $host,
+            $path,
+            $params,
+            $skey,
+            $ikey,
+            $now,
+            $body,
+            $additional_headers,
+        ];
 
-        $this->assertEquals("Basic dGVzdF9pa2V5OmYwMTgxMWNiYmY5NTYxNjIzYWI0NWI4OTMwOTYyNjdmZDQ2YTUxNzg=", $result);
+        $result = self::callClientMethod('signParameters', ...$signParametersParams);
+
+        $this->assertEquals("Basic dGVzdF9pa2V5OjRlODIwODQ2N2QxZjVlMmM4MDQ1NTM3ZDY2N2Y4NzZmN2MyMGQwZjVkYjE4M2U1ODNlMDU5N2U1NTgyOWVkMWQwZjc5NmY0ZjBiZmVlYWMyNzExYjVjZTQ1ZmNjZThjNjRjMTQ5Y2IwZDFlZGFmOWJiZTc3ODcwNjExODU3MDY0", $result);
     }
 
     public function testSignature()
@@ -162,7 +322,7 @@ class ClientTest extends BaseTest
 
         $result = self::callClientMethod('sign', ...$args);
 
-        $this->assertEquals("f01811cbbf9561623ab45b893096267fd46a5178", $result);
+        $this->assertEquals("0508065035a03b2a1de2f453e629e791d180329e157f65df6b3e0f08299d4321e1c5c7a7c7ee6b9e5fc80d1fb6fbf3ad5eb7c44dd3b3985a02c37aca53ec3698", $result);
     }
 
     public function testJsonPagingApiCallSuccess()
