@@ -214,7 +214,7 @@ class Client
         $headers = [];
         if (in_array($method, ["POST", "PUT", "PATCH"], true)) {
             ksort($params);
-            $body = json_encode($params);
+            $body = empty($params) ? "{}" : json_encode($params);
             $params = [];
             $headers["Content-Type"] = "application/json";
             $uri = $path;
