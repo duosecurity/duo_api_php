@@ -23,7 +23,6 @@ class SSLTest extends \PHPUnit\Framework\TestCase
 
     public static function setUpBeforeClass() : void
     {
-        $silence = '>/dev/null 2>&1 & echo $!';
         $testDir = dirname(__FILE__);
 
         // Use stunnel4 (or stunnel) with config files
@@ -33,27 +32,24 @@ class SSLTest extends \PHPUnit\Framework\TestCase
             $stunnelCmd = 'stunnel';
         }
 
-        $commands = [
-            sprintf("php -S %s", PHP_SERVER),
-            sprintf("cd %s && %s stunnel-good.conf", $testDir, $stunnelCmd),
-            sprintf("cd %s && %s stunnel-self.conf", $testDir, $stunnelCmd),
-            sprintf("cd %s && %s stunnel-badhost.conf", $testDir, $stunnelCmd),
-        ];
+        // Start PHP server in background
+        $phpServerPid = trim(shell_exec(sprintf("php -S %s >/dev/null 2>&1 & echo \\$!", PHP_SERVER)));
 
-        $pids = [];
-
-        foreach ($commands as $command) {
-            $output = [];
-            exec($command . $silence, $output);
-            $pid = (int) $output[0];
-            array_push($pids, $pid);
+        // Start stunnel servers using config files (must run from test directory for relative cert paths)
+        $stunnelPids = [];
+        $configs = ['good', 'self', 'badhost'];
+        foreach ($configs as $name) {
+            $pid = trim(shell_exec(sprintf("cd %s && %s stunnel-%s.conf >/dev/null 2>&1 & echo \\$!",
+                $testDir, $stunnelCmd, $name)));
+            $stunnelPids[] = $pid;
         }
 
         // Allow processes to start
         sleep(1);
 
-        register_shutdown_function(function () use ($pids) {
-            foreach ($pids as $pid) {
+        register_shutdown_function(function () use ($phpServerPid, $stunnelPids) {
+            exec('kill ' . $phpServerPid);
+            foreach ($stunnelPids as $pid) {
                 exec('kill ' . $pid);
             }
         });
