@@ -24,12 +24,20 @@ class SSLTest extends \PHPUnit\Framework\TestCase
     public static function setUpBeforeClass() : void
     {
         $silence = '>/dev/null 2>&1 & echo $!';
+        $testDir = dirname(__FILE__);
+
+        // Use stunnel4 (or stunnel) with config files
+        $stunnelCmd = 'stunnel4';
+        exec('which stunnel4 2>/dev/null', $output, $returnCode);
+        if ($returnCode !== 0) {
+            $stunnelCmd = 'stunnel';
+        }
 
         $commands = [
             sprintf("php -S %s", PHP_SERVER),
-            sprintf("stunnel3 -d %s -r %s -p %s -P '' -f", GOOD_STUNNEL_SERVER, PHP_SERVER, dirname(__FILE__) . "/" . "good.pem"),
-            sprintf("stunnel3 -d %s -r %s -p %s -P '' -f", SELF_SIGNED_STUNNEL_SERVER, PHP_SERVER, dirname(__FILE__) . "/" . "self.pem"),
-            sprintf("stunnel3 -d %s -r %s -p %s -P '' -f", BAD_HOSTNAME_STUNNEL_SERVER, PHP_SERVER, dirname(__FILE__) . "/" . "badhost.pem"),
+            sprintf("cd %s && %s stunnel-good.conf", $testDir, $stunnelCmd),
+            sprintf("cd %s && %s stunnel-self.conf", $testDir, $stunnelCmd),
+            sprintf("cd %s && %s stunnel-badhost.conf", $testDir, $stunnelCmd),
         ];
 
         $pids = [];
