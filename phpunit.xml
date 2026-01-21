@@ -13,7 +13,7 @@
     <const name="GOOD_STUNNEL_SERVER" value="localhost:4443"/>
     <const name="SELF_SIGNED_STUNNEL_SERVER" value="localhost:4444"/>
     <const name="BAD_HOSTNAME_STUNNEL_SERVER" value="localhost:4445"/>
-    <const name="PHP_SERVER" value="localhost:4000"/>
+    <const name="PHP_SERVER" value="127.0.0.1:4000"/>
   </php>
   <testsuites>
     <testsuite name="unit">
