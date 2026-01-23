@@ -9,9 +9,10 @@
 **Accounts** - https://www.duosecurity.com/docs/accountsapi
 
 ## Tested Against PHP Versions:
-* 8.0
-* 8.1
 * 8.2
+* 8.3
+* 8.4
+* 8.5
 
 ## TLS 1.2 and 1.3 Support
 
