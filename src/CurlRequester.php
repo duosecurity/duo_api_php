@@ -12,13 +12,6 @@ class CurlRequester implements Requester
         $this->ch = curl_init();
     }
 
-    public function __destruct()
-    {
-        if (isset($this->ch)) {
-            curl_close($this->ch);
-        }
-    }
-
     public function options($options)
     {
         assert(is_array($options));
