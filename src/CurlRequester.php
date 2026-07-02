@@ -37,13 +37,15 @@ class CurlRequester implements Requester
             $curl_options[$key] = $options[$value];
         }
 
-        if (!isset($curl_options[CURLOPT_CAINFO])) {
-            $curl_options[CURLOPT_CAINFO] = DEFAULT_CA_CERTS;
-        };
+        $ca_pinning_disabled = isset($options["disable_ca_pinning"]) && $options["disable_ca_pinning"];
 
-        if ($curl_options[CURLOPT_CAINFO] == "IGNORE") {
+        if ($ca_pinning_disabled) {
             unset($curl_options[CURLOPT_CAINFO]);
-        };
+        } elseif (!isset($curl_options[CURLOPT_CAINFO])) {
+            $curl_options[CURLOPT_CAINFO] = DEFAULT_CA_CERTS;
+        } elseif ($curl_options[CURLOPT_CAINFO] == "IGNORE") {
+            unset($curl_options[CURLOPT_CAINFO]);
+        }
 
         // Mandatory configuration options
         $curl_options[CURLOPT_RETURNTRANSFER] = 1;

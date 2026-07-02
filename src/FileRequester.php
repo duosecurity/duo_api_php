@@ -78,7 +78,8 @@ class FileRequester implements Requester
             $uri .= (isset($options["proxy_port"]) ? ":" . $options["proxy_port"] : "");
             $this->http_options["http"]["proxy"] = $uri;
         }
-        if (isset($options["ca"])) {
+        $ca_pinning_disabled = isset($options["disable_ca_pinning"]) && $options["disable_ca_pinning"];
+        if (!$ca_pinning_disabled && isset($options["ca"])) {
             $this->http_options["ssl"]["cafile"] = $options["ca"];
         }
     }
@@ -132,8 +133,8 @@ class FileRequester implements Requester
             );
             $success = false;
         } else {
-            // https://secure.php.net/manual/en/reserved.variables.httpresponseheader.php
-            $http_status_code = self::parse_http_response_header($http_response_header);
+            $response_headers = http_get_last_response_headers();
+            $http_status_code = self::parse_http_response_header($response_headers);
         }
 
         return [
