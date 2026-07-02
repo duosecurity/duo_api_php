@@ -133,7 +133,11 @@ class FileRequester implements Requester
             );
             $success = false;
         } else {
-            $response_headers = http_get_last_response_headers();
+            if (function_exists('http_get_last_response_headers')) {
+                $response_headers = http_get_last_response_headers();
+            } else {
+                $response_headers = $http_response_header;
+            }
             $http_status_code = self::parse_http_response_header($response_headers);
         }
 
