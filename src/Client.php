@@ -68,7 +68,23 @@ class Client
      */
     public function setRequesterOption($option, $value)
     {
+        if ($option === "ca" && isset($this->options["disable_ca_pinning"]) && $this->options["disable_ca_pinning"]) {
+            throw new \InvalidArgumentException(
+                "Cannot use custom CA certificates when CA pinning is disabled"
+            );
+        }
         $this->options[$option] = $value;
+        return $this;
+    }
+
+    public function disableCaPinning()
+    {
+        if (isset($this->options["ca"])) {
+            throw new \InvalidArgumentException(
+                "Cannot disable CA pinning when custom CA certificates are set"
+            );
+        }
+        $this->options["disable_ca_pinning"] = true;
         return $this;
     }
 

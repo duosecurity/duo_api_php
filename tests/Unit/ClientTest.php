@@ -502,4 +502,54 @@ class ClientTest extends BaseTest
         );
         $response = $client->apiCall("GET", "/foo/bar", []);
     }
+
+    public function testDisableCaPinning()
+    {
+        $client = new \DuoAPI\Client("TEST", "TEST", "TEST");
+        $result = $client->disableCaPinning();
+
+        $this->assertSame($client, $result);
+        $this->assertTrue($client->options["disable_ca_pinning"]);
+    }
+
+    public function testDisableCaPinningWithCustomCaThrows()
+    {
+        $client = new \DuoAPI\Client("TEST", "TEST", "TEST");
+        $client->setRequesterOption("ca", "/path/to/cert.pem");
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Cannot disable CA pinning when custom CA certificates are set");
+        $client->disableCaPinning();
+    }
+
+    public function testSetCustomCaWithDisabledPinningThrows()
+    {
+        $client = new \DuoAPI\Client("TEST", "TEST", "TEST");
+        $client->disableCaPinning();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Cannot use custom CA certificates when CA pinning is disabled");
+        $client->setRequesterOption("ca", "/path/to/cert.pem");
+    }
+
+    public function testDisableCaPinningSetsOption()
+    {
+        $success_resp = [
+            "success" => true,
+            "response" => "ok",
+            "http_status_code" => 200,
+        ];
+
+        $response = [$success_resp];
+        $client = self::getMockedClient("Client", $response, $paged = true);
+        $client->disableCaPinning();
+
+        $this->mocked_curl_requester->expects($this->atLeastOnce())
+            ->method('options')
+            ->with($this->callback(function($options) {
+                return isset($options["disable_ca_pinning"]) && $options["disable_ca_pinning"] === true;
+            }));
+
+        $client->apiCall("GET", "/foo/bar", []);
+    }
 }
