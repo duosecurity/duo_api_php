@@ -493,9 +493,39 @@ class ClientTest extends BaseTest
             $this->anything(),
             $this->anything(),
             $this->callback(function($headers) {
-                $version = "duo_api_php/" . \DuoAPI\VERSION;
+                $expected = "duo_api_php/" . \DuoAPI\VERSION
+                    . " ca_bundle/" . \DuoAPI\CA_BUNDLE_VERSION
+                    . " (ca_pinning=enabled)";
                 $this->assertArrayHasKey("User-Agent", $headers);
-                $this->assertEquals($headers["User-Agent"], $version);
+                $this->assertEquals($expected, $headers["User-Agent"]);
+                return true;
+            }),
+            $this->anything()
+        );
+        $response = $client->apiCall("GET", "/foo/bar", []);
+    }
+
+    public function testUserAgentWithCaPinningDisabled()
+    {
+        $success_resp = [
+            "success" => true,
+            "response" => "not rate limited",
+            "http_status_code" => 200,
+        ];
+
+        $response = [$success_resp];
+
+        $client = self::getMockedClient("Client", $response, $paged = true);
+        $client->disableCaPinning();
+        $this->mocked_curl_requester->method('execute')->with(
+            $this->anything(),
+            $this->anything(),
+            $this->callback(function($headers) {
+                $expected = "duo_api_php/" . \DuoAPI\VERSION
+                    . " ca_bundle/" . \DuoAPI\CA_BUNDLE_VERSION
+                    . " (ca_pinning=disabled)";
+                $this->assertArrayHasKey("User-Agent", $headers);
+                $this->assertEquals($expected, $headers["User-Agent"]);
                 return true;
             }),
             $this->anything()

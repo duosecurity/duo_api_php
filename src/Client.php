@@ -4,6 +4,7 @@ namespace DuoAPI;
 use DateTime;
 
 const VERSION = "1.2.1-dev";
+const CA_BUNDLE_VERSION = "1.0";
 const INITIAL_BACKOFF_SECONDS = 1;
 const MAX_BACKOFF_SECONDS = 32;
 const BACKOFF_FACTOR = 2;
@@ -240,7 +241,10 @@ class Client
         }
 
         $headers["Date"] = $now;
-        $headers["User-Agent"] = "duo_api_php/" . VERSION;
+        $ca_pinning_status = (!empty($this->options["disable_ca_pinning"])) ? "disabled" : "enabled";
+        $headers["User-Agent"] = "duo_api_php/" . VERSION
+            . " ca_bundle/" . CA_BUNDLE_VERSION
+            . " (ca_pinning=" . $ca_pinning_status . ")";
         $headers["Authorization"] = self::signParameters(
             $method,
             $this->host,
