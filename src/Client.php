@@ -42,10 +42,8 @@ class Client
 
         if ($requester !== null) {
             $this->requester = $requester;
-        } elseif (in_array("curl", get_loaded_extensions(), true)) {
-            $this->requester = new CurlRequester();
         } else {
-            $this->requester = new FileRequester();
+            $this->requester = new CurlRequester();
         }
 
         $this->paging = $paging;

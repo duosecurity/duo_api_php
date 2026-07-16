@@ -108,23 +108,6 @@ class SSLTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($result["success"]);
     }
 
-    public function testCorrectlySignedCertificateFile()
-    {
-        $requester = new \DuoAPI\FileRequester();
-        $result = $this->pingSSLServer(
-            $requester,
-            GOOD_STUNNEL_SERVER,
-            $this->good_chain
-        );
-
-        /*
-         * A '404' here is fine. We're simply trying to test if a good
-         * SSL *connection* is made, there's not a fully implemented API
-         * waiting for us on the other side of the connection.
-         */
-        $this->assertEquals(404, $result["http_status_code"]);
-    }
-
     /*
      * Test our custom certificate that was signed by our custom CA against
      * a third-party certificate chain.
@@ -153,23 +136,6 @@ class SSLTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testMismatchedCertificateFile()
-    {
-        $requester = new \DuoAPI\FileRequester();
-        $result = $this->pingSSLServer(
-            $requester,
-            GOOD_STUNNEL_SERVER,
-            $this->bad_chain
-        );
-
-        $this->assertFalse($result["success"]);
-        $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertStringContainsStringIgnoringCase(
-            "failed to open stream: operation failed",
-            $result["response"]["message"]
-        );
-    }
-
     /*
      * Test an unsigned certificate against our custom certificate chain.
      *
@@ -192,23 +158,6 @@ class SSLTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(
             $result["response"]["code"],
             self::CURLE_PEER_FAILED_VERIFICATION
-        );
-    }
-
-    public function testSelfSignedCertificateFile()
-    {
-        $requester = new \DuoAPI\FileRequester();
-        $result = $this->pingSSLServer(
-            $requester,
-            SELF_SIGNED_STUNNEL_SERVER,
-            $this->good_chain
-        );
-
-        $this->assertFalse($result["success"]);
-        $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertStringContainsStringIgnoringCase(
-            "failed to open stream: operation failed",
-            $result["response"]["message"]
         );
     }
 
@@ -238,20 +187,4 @@ class SSLTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testCertificateBadHostnameFile()
-    {
-        $requester = new \DuoAPI\FileRequester();
-        $result = $this->pingSSLServer(
-            $requester,
-            BAD_HOSTNAME_STUNNEL_SERVER,
-            $this->good_chain
-        );
-
-        $this->assertFalse($result["success"]);
-        $this->assertEquals($result["response"]["stat"], "FAIL");
-        $this->assertStringContainsStringIgnoringCase(
-            "failed to open stream: operation failed",
-            $result["response"]["message"]
-        );
-    }
 }
