@@ -43,8 +43,6 @@ class CurlRequester implements Requester
             unset($curl_options[CURLOPT_CAINFO]);
         } elseif (!isset($curl_options[CURLOPT_CAINFO])) {
             $curl_options[CURLOPT_CAINFO] = DEFAULT_CA_CERTS;
-        } elseif ($curl_options[CURLOPT_CAINFO] == "IGNORE") {
-            unset($curl_options[CURLOPT_CAINFO]);
         }
 
         if (isset($curl_options[CURLOPT_CAINFO])) {

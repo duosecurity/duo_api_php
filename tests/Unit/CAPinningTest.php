@@ -39,8 +39,6 @@ class CAPinningTestRequester extends CurlRequester
             unset($curl_options[CURLOPT_CAINFO]);
         } elseif (!isset($curl_options[CURLOPT_CAINFO])) {
             $curl_options[CURLOPT_CAINFO] = \DEFAULT_CA_CERTS;
-        } elseif ($curl_options[CURLOPT_CAINFO] == "IGNORE") {
-            unset($curl_options[CURLOPT_CAINFO]);
         }
 
         if (isset($curl_options[CURLOPT_CAINFO])) {
@@ -105,11 +103,13 @@ class CAPinningTest extends TestCase
         $this->assertArrayNotHasKey(CURLOPT_CAPATH, $options);
     }
 
-    public function testCaPathNotSetWhenCaIsIgnore(): void
+    public function testCaPathNotSetWhenCaIsIgnoreViaCLient(): void
     {
-        $options = $this->getOptionsFromCall(["ca" => "IGNORE"]);
+        $client = new \DuoAPI\Client("IKEY", "SKEY", "host.example.com");
+        $client->setRequesterOption("ca", "IGNORE");
 
-        $this->assertArrayNotHasKey(CURLOPT_CAPATH, $options);
+        $this->assertTrue($client->options["disable_ca_pinning"]);
+        $this->assertArrayNotHasKey("ca", $client->options);
     }
 
     // ---------------------------------------------------------
@@ -131,11 +131,14 @@ class CAPinningTest extends TestCase
         $this->assertArrayNotHasKey(CURLOPT_CAINFO, $options);
     }
 
-    public function testCaInfoNotSetWhenCaIsIgnore(): void
+    public function testIgnoreNormalizesToDisableCaPinning(): void
     {
-        $options = $this->getOptionsFromCall(["ca" => "IGNORE"]);
+        $client = new \DuoAPI\Client("IKEY", "SKEY", "host.example.com");
+        $client->setRequesterOption("ca", "IGNORE");
 
+        $options = $this->getOptionsFromCall($client->options);
         $this->assertArrayNotHasKey(CURLOPT_CAINFO, $options);
+        $this->assertArrayNotHasKey(CURLOPT_CAPATH, $options);
     }
 
     // ---------------------------------------------------------

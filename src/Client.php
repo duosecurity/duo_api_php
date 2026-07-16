@@ -67,6 +67,12 @@ class Client
      */
     public function setRequesterOption($option, $value)
     {
+        // Normalize the legacy ca=IGNORE flag to disable_ca_pinning
+        if ($option === "ca" && $value === "IGNORE") {
+            $this->options["disable_ca_pinning"] = true;
+            unset($this->options["ca"]);
+            return $this;
+        }
         if ($option === "ca" && isset($this->options["disable_ca_pinning"]) && $this->options["disable_ca_pinning"]) {
             throw new \InvalidArgumentException(
                 "Cannot use custom CA certificates when CA pinning is disabled"

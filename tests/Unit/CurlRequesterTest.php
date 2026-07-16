@@ -36,8 +36,6 @@ class TestableCurlRequester extends \DuoAPI\CurlRequester
             unset($curl_options[CURLOPT_CAINFO]);
         } elseif (!isset($curl_options[CURLOPT_CAINFO])) {
             $curl_options[CURLOPT_CAINFO] = DEFAULT_CA_CERTS;
-        } elseif ($curl_options[CURLOPT_CAINFO] == "IGNORE") {
-            unset($curl_options[CURLOPT_CAINFO]);
         }
 
         if (isset($curl_options[CURLOPT_CAINFO])) {
@@ -90,11 +88,12 @@ class CurlRequesterTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals("/custom/ca.pem", $requester->applied_options[CURLOPT_CAINFO]);
     }
 
-    public function testIgnoreCaRemovesCaInfo()
+    public function testIgnoreNormalizedByClient()
     {
-        $requester = new TestableCurlRequester();
-        $requester->options(["timeout" => 10, "ca" => "IGNORE"]);
+        $client = new \DuoAPI\Client("IKEY", "SKEY", "host.example.com");
+        $client->setRequesterOption("ca", "IGNORE");
 
-        $this->assertArrayNotHasKey(CURLOPT_CAINFO, $requester->applied_options);
+        $this->assertTrue($client->options["disable_ca_pinning"]);
+        $this->assertArrayNotHasKey("ca", $client->options);
     }
 }
