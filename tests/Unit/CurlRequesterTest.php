@@ -5,6 +5,11 @@ class TestableCurlRequester extends \DuoAPI\CurlRequester
 {
     public $applied_options = [];
 
+    public function __construct()
+    {
+        $this->ch = \curl_init();
+    }
+
     public function options($options)
     {
         assert(is_array($options));
@@ -33,6 +38,10 @@ class TestableCurlRequester extends \DuoAPI\CurlRequester
             $curl_options[CURLOPT_CAINFO] = DEFAULT_CA_CERTS;
         } elseif ($curl_options[CURLOPT_CAINFO] == "IGNORE") {
             unset($curl_options[CURLOPT_CAINFO]);
+        }
+
+        if (isset($curl_options[CURLOPT_CAINFO])) {
+            $curl_options[CURLOPT_CAPATH] = "/dev/null/" . bin2hex(\random_bytes(16));
         }
 
         $curl_options[CURLOPT_RETURNTRANSFER] = 1;
