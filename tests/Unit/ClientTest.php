@@ -533,6 +533,119 @@ class ClientTest extends BaseTest
         $response = $client->apiCall("GET", "/foo/bar", []);
     }
 
+    public function testUserAgentWithExtension()
+    {
+        $success_resp = [
+            "success" => true,
+            "response" => "not rate limited",
+            "http_status_code" => 200,
+        ];
+
+        $response = [$success_resp];
+
+        $client = self::getMockedClient("Client", $response, $paged = true);
+        $client->appendToUserAgent("MyApp/1.0");
+        $this->mocked_curl_requester->method('execute')->with(
+            $this->anything(),
+            $this->anything(),
+            $this->callback(function($headers) {
+                $expected = "duo_api_php/" . \DuoAPI\VERSION
+                    . " ca_bundle/" . \DuoAPI\CA_BUNDLE_VERSION
+                    . " (ca_pinning=enabled) MyApp/1.0";
+                $this->assertArrayHasKey("User-Agent", $headers);
+                $this->assertEquals($expected, $headers["User-Agent"]);
+                return true;
+            }),
+            $this->anything()
+        );
+        $response = $client->apiCall("GET", "/foo/bar", []);
+    }
+
+    public function testUserAgentWithWhitespaceExtension()
+    {
+        $success_resp = [
+            "success" => true,
+            "response" => "not rate limited",
+            "http_status_code" => 200,
+        ];
+
+        $response = [$success_resp];
+
+        $client = self::getMockedClient("Client", $response, $paged = true);
+        $client->appendToUserAgent("  ");
+        $this->mocked_curl_requester->method('execute')->with(
+            $this->anything(),
+            $this->anything(),
+            $this->callback(function($headers) {
+                $expected = "duo_api_php/" . \DuoAPI\VERSION
+                    . " ca_bundle/" . \DuoAPI\CA_BUNDLE_VERSION
+                    . " (ca_pinning=enabled)";
+                $this->assertArrayHasKey("User-Agent", $headers);
+                $this->assertEquals($expected, $headers["User-Agent"]);
+                return true;
+            }),
+            $this->anything()
+        );
+        $response = $client->apiCall("GET", "/foo/bar", []);
+    }
+
+    public function testUserAgentExtensionIsTrimmed()
+    {
+        $success_resp = [
+            "success" => true,
+            "response" => "not rate limited",
+            "http_status_code" => 200,
+        ];
+
+        $response = [$success_resp];
+
+        $client = self::getMockedClient("Client", $response, $paged = true);
+        $client->appendToUserAgent("  MyApp/1.0  ");
+        $this->mocked_curl_requester->method('execute')->with(
+            $this->anything(),
+            $this->anything(),
+            $this->callback(function($headers) {
+                $expected = "duo_api_php/" . \DuoAPI\VERSION
+                    . " ca_bundle/" . \DuoAPI\CA_BUNDLE_VERSION
+                    . " (ca_pinning=enabled) MyApp/1.0";
+                $this->assertArrayHasKey("User-Agent", $headers);
+                $this->assertEquals($expected, $headers["User-Agent"]);
+                return true;
+            }),
+            $this->anything()
+        );
+        $response = $client->apiCall("GET", "/foo/bar", []);
+    }
+
+    public function testAppendToUserAgentOverwritesPrevious()
+    {
+        $success_resp = [
+            "success" => true,
+            "response" => "not rate limited",
+            "http_status_code" => 200,
+        ];
+
+        $response = [$success_resp];
+
+        $client = self::getMockedClient("Client", $response, $paged = true);
+        $client->appendToUserAgent("First/1.0");
+        $client->appendToUserAgent("Second/2.0");
+        $this->mocked_curl_requester->method('execute')->with(
+            $this->anything(),
+            $this->anything(),
+            $this->callback(function($headers) {
+                $expected = "duo_api_php/" . \DuoAPI\VERSION
+                    . " ca_bundle/" . \DuoAPI\CA_BUNDLE_VERSION
+                    . " (ca_pinning=enabled) Second/2.0";
+                $this->assertArrayHasKey("User-Agent", $headers);
+                $this->assertEquals($expected, $headers["User-Agent"]);
+                return true;
+            }),
+            $this->anything()
+        );
+        $response = $client->apiCall("GET", "/foo/bar", []);
+    }
+
     public function testDisableCaPinning()
     {
         $client = new \DuoAPI\Client("TEST", "TEST", "TEST");

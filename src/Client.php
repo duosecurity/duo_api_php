@@ -22,6 +22,7 @@ class Client
     public $paging;
     public $options;
     public $sleep_service;
+    private $user_agent_extension = "";
 
     public function __construct(
         $ikey,
@@ -86,6 +87,12 @@ class Client
             );
         }
         $this->options["disable_ca_pinning"] = true;
+        return $this;
+    }
+
+    public function appendToUserAgent(string $user_agent_extension)
+    {
+        $this->user_agent_extension = trim($user_agent_extension);
         return $this;
     }
 
@@ -242,9 +249,13 @@ class Client
 
         $headers["Date"] = $now;
         $ca_pinning_status = (!empty($this->options["disable_ca_pinning"])) ? "disabled" : "enabled";
-        $headers["User-Agent"] = "duo_api_php/" . VERSION
+        $user_agent = "duo_api_php/" . VERSION
             . " ca_bundle/" . CA_BUNDLE_VERSION
             . " (ca_pinning=" . $ca_pinning_status . ")";
+        if (!empty($this->user_agent_extension)) {
+            $user_agent .= " " . $this->user_agent_extension;
+        }
+        $headers["User-Agent"] = $user_agent;
         $headers["Authorization"] = self::signParameters(
             $method,
             $this->host,
